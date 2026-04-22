@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Modelo EMPLEADO
+model Employee {
+  id            String       @id @default(cuid())
+  nombre        String
+  cargo         String
+  area          String
+  correo_electronico String   @unique
+  
+  asignaciones  Assignment[]
+  
+  @@map("empleados")
+}
+
+// Modelo ACTIVO
+model Asset {
+  id               String       @id @default(cuid())
+  nombre           String
+  tipo             String
+  marca            String
+  modelo           String
+  numero_serie     String       @unique
+  estado           String       // disponible, en_uso, mantenimiento, dado_baja
+  fecha_compra     DateTime     @map("fecha_compra")
+  
+  asignaciones     Assignment[]
+  mantenimientos   Maintenance[]
+  
+  @@map("activos")
+}
+
+// Modelo ASIGNACION
+model Assignment {
+  id               String       @id @default(cuid())
+  activo_id        String
+  empleado_id      String
+  fecha_inicio     DateTime     @default(now())
+  fecha_fin        DateTime?
+  
+  activo           Asset        @relation(fields: [activo_id], references: [id], onDelete: Restrict)
+  empleado         Employee     @relation(fields: [empleado_id], references: [id], onDelete: Restrict)
+  
+  @@unique([activo_id, fecha_fin])
+  @@index([activo_id])
+  @@index([empleado_id])
+  @@map("asignaciones")
+}
+
+// Modelo MANTENIMIENTO
+model Maintenance {
+  id               String       @id @default(cuid())
+  activo_id        String
+  tipo             String       // preventivo, correctivo
+  descripcion      String
+  fecha            DateTime     @default(now())
+  tecnico          String
+  
+  activo           Asset        @relation(fields: [activo_id], references: [id], onDelete: Cascade)
+  
+  @@index([activo_id])
+  @@index([fecha])
+  @@map("mantenimientos")
+}
