@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,7 +11,7 @@ datasource db {
 
 // Modelo EMPLEADO
 model Employee {
-  id            String       @id @default(cuid())
+  id            Int       @id @default(autoincrement())
   nombre        String
   cargo         String
   area          String
@@ -26,7 +24,7 @@ model Employee {
 
 // Modelo ACTIVO
 model Asset {
-  id               String       @id @default(cuid())
+  id               Int       @id @default(autoincrement())
   nombre           String
   tipo             String
   marca            String
@@ -43,9 +41,9 @@ model Asset {
 
 // Modelo ASIGNACION
 model Assignment {
-  id               String       @id @default(cuid())
-  activo_id        String
-  empleado_id      String
+  id               Int       @id @default(autoincrement())
+  activo_id        Int       
+  empleado_id      Int       
   fecha_inicio     DateTime     @default(now())
   fecha_fin        DateTime?
   
@@ -60,8 +58,8 @@ model Assignment {
 
 // Modelo MANTENIMIENTO
 model Maintenance {
-  id               String       @id @default(cuid())
-  activo_id        String
+  id               Int       @id @default(autoincrement())
+  activo_id        Int       
   tipo             String       // preventivo, correctivo
   descripcion      String
   fecha            DateTime     @default(now())
