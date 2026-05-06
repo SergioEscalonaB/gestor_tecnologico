@@ -21,28 +21,39 @@ export default function Activos() {
   // Carga activos desde la API
   useEffect(() => {
     setCargando(true);
-    const params = new URLSearchParams();
-    if (filtroCategoria) params.append("categoria", filtroCategoria);
-    if (filtroEstado)    params.append("estado", filtroEstado);
-
-    // Aca para buscar todos los activos, se llama a /api/activos sin query params. Si hay filtros, se agregan como query params.
-    fetch(`/api/activos?${params.toString()}`)
+    fetch("/api/activos")
       .then((res) => res.json())
       .then((data) => {
         setActivos(data);
-        setPaginaActual(1); // resetea a página 1 cuando cambia el filtro
         setCargando(false);
       });
-  }, [filtroCategoria, filtroEstado]); // recarga cuando cambian los filtros
+  }, []);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, filtroCategoria, filtroEstado]);
+
+  function normalizarTexto(texto: string) {
+    return texto.trim().toLowerCase();
+  }
 
   // Filtra por búsqueda en el cliente (nombre, marca, numero_serie)
   const activosFiltrados = activos.filter((a) => {
-    const texto = busqueda.toLowerCase();
+    const texto = normalizarTexto(busqueda);
+    const categoriaActivo = normalizarTexto(a.categoria);
     return (
       a.nombre.toLowerCase().includes(texto)       ||
       a.marca.toLowerCase().includes(texto)        ||
       a.numero_serie.toLowerCase().includes(texto) ||
-      a.categoria.toLowerCase().includes(texto)
+      categoriaActivo.includes(texto)
+    );
+  }).filter((a) => {
+    const categoriaActivo = normalizarTexto(a.categoria);
+    const estadoActivo = normalizarTexto(a.estado);
+
+    return (
+      (!filtroCategoria || categoriaActivo.includes(normalizarTexto(filtroCategoria))) &&
+      (!filtroEstado || estadoActivo === normalizarTexto(filtroEstado))
     );
   });
 
