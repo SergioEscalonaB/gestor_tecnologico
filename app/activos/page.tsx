@@ -1,8 +1,7 @@
+import Activos from "@/components/Activos";
 
 export default function ActivosPage() {
     return (
-        <div>
-            <h1>Activos</h1>
-        </div>
+        <Activos />
     );
-}   
+}   

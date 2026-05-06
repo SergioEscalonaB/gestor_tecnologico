@@ -26,7 +26,7 @@ model Employee {
 model Asset {
   id               Int       @id @default(autoincrement())
   nombre           String
-  tipo             String
+  categoria        String
   marca            String
   modelo           String
   numero_serie     String       @unique
