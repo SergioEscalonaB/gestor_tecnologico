@@ -7,16 +7,18 @@ const prisma = new PrismaClient({ adapter });
 // Obtener todos los mantenimientos con el activo completo
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const activo_id = searchParams.get("activo_id");
-  const tipo = searchParams.get("tipo"); // preventivo o correctivo
+  const activoId = searchParams.get("activoId");
+  const tipo = searchParams.get("tipo"); // preventivo, correctivo, revision_general, revision_de_software
+  const estado = searchParams.get("estado"); // pendiente, en_proceso, programado, pendiente_de_respuesta, vencido
 
   const mantenimientos = await prisma.maintenance.findMany({
     where: {
-      ...(activo_id ? { activo_id: parseInt(activo_id) } : {}),
+      ...(activoId ? { activoId: parseInt(activoId) } : {}),
       ...(tipo      ? { tipo }                            : {}),
+      ...(estado    ? { estado }                          : {})
     },
     include: { activo: true },
-    orderBy: { fecha: "desc" }
+    orderBy: { fecha_programada: "desc" }
   });
 
   return Response.json(mantenimientos);
@@ -25,18 +27,18 @@ export async function GET(req: Request) {
 // Registrar nuevo mantenimiento
 export async function POST(req: Request) {
   const body = await req.json();
-  const { activo_id, tipo, descripcion, tecnico } = body;
+  const { activoId, tipo, descripcion, fecha_programada, responsable, estado } = body;
 
-  if (!activo_id || !tipo || !descripcion || !tecnico) {
+  if (!activoId || !tipo || !descripcion || !fecha_programada || !responsable || !estado) {
     return Response.json(
-      { error: "activo_id, tipo, descripcion y tecnico son obligatorios" },
+      { error: "Todos los campos son obligatorios" },
       { status: 400 }
     );
   }
 
   // Verificar que el activo exista
   const activo = await prisma.asset.findUnique({
-    where: { id: activo_id }
+    where: { id: activoId }
   });
 
   if (!activo) {
@@ -46,10 +48,10 @@ export async function POST(req: Request) {
   // Registrar mantenimiento y cambiar estado del activo
   const [mantenimiento] = await prisma.$transaction([
     prisma.maintenance.create({
-      data: { activo_id, tipo, descripcion, tecnico }
+      data: { activoId, tipo, descripcion, fecha_programada, responsable, estado, activo_nombre: activo.nombre }
     }),
     prisma.asset.update({
-      where: { id: activo_id },
+      where: { id: activoId },
       data: { estado: "mantenimiento" } // El activo pasa a mantenimiento
     })
   ]);

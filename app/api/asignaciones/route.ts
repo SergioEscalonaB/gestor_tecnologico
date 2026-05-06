@@ -21,18 +21,18 @@ export async function GET() {
 // Crear nueva asignación
 export async function POST(req: Request) {
   const body = await req.json();
-  const { activo_id, empleado_id } = body;
+  const { activoId, empleadoId } = body;
 
-  if (!activo_id || !empleado_id) {
+  if (!activoId || !empleadoId) {
     return Response.json(
-      { error: "activo_id y empleado_id son obligatorios" },
+      { error: "activoId y empleadoId son obligatorios" },
       { status: 400 }
     );
   }
 
   // Verificar que el activo esté disponible
   const activo = await prisma.asset.findUnique({
-    where: { id: activo_id }
+    where: { id: activoId }
   });
 
   if (!activo) {
@@ -49,10 +49,10 @@ export async function POST(req: Request) {
   // Crear la asignación y cambiar estado del activo a "en_uso"
   const [asignacion] = await prisma.$transaction([
     prisma.assignment.create({
-      data: { activo_id, empleado_id }
+      data: { activoId, empleadoId }
     }),
     prisma.asset.update({
-      where: { id: activo_id },
+      where: { id: activoId },
       data: { estado: "en_uso" }
     })
   ]);

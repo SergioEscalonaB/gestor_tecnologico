@@ -55,7 +55,7 @@ export async function PUT(
       data: { fecha_fin: new Date() } // marca cuando se devolvió
     }),
     prisma.asset.update({
-      where: { id: asignacion.activo_id },
+      where: { id: asignacion.activoId },
       data: { estado: "disponible" } //el activo queda libre
     })
   ]);
@@ -82,7 +82,7 @@ export async function DELETE(
   // Si la asignación estaba activa, libera el activo
   if (!asignacion.fecha_fin) {
     await prisma.asset.update({
-      where: { id: asignacion.activo_id },
+      where: { id: asignacion.activoId },
       data: { estado: "disponible" }
     });
   }

@@ -15,7 +15,8 @@ export async function GET(
   const activo = await prisma.asset.findUnique({
     where: { id: idNumber },
     include: {
-      mantenimientos: { orderBy: { fecha: "desc" } }, // historial de mantenimientos
+      empleadoResponsable: true, // información del empleado responsable
+      mantenimientos: { orderBy: { fecha_programada: "desc" } }, // historial de mantenimientos
       asignaciones: {
         where: { fecha_fin: null }, // solo la asignación activa
         include: { empleado: true }
@@ -39,14 +40,20 @@ export async function PUT(
   const idNumber = parseInt(id);
   
   const body = await req.json();
-  const { nombre, tipo, marca, modelo, numero_serie, estado, fecha_compra } = body;
+  const { nombre, categoria, marca, modelo, numero_serie,
+    estado, ubicacion, fecha_compra, valor_compra,
+    proveedor, empleadoResponsableId } = body;
 
   const activo = await prisma.asset.update({
     where: { id: idNumber },
     data: {
-      nombre, tipo, marca, modelo,
-      numero_serie, estado,
-      fecha_compra: new Date(fecha_compra)
+      nombre, categoria, marca, modelo,
+      numero_serie, estado, 
+      ubicacion : ubicacion ?? null, // Permitir nulo si no se proporciona ubicación
+      fecha_compra: new Date(fecha_compra),
+      valor_compra : valor_compra ?? null,
+      proveedor : proveedor ?? null,
+      empleadoResponsableId: empleadoResponsableId ?? null
     }
   });
 

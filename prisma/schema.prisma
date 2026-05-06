@@ -11,63 +11,71 @@ datasource db {
 
 // Modelo EMPLEADO
 model Employee {
-  id            Int       @id @default(autoincrement())
-  nombre        String
-  cargo         String
-  area          String
-  correo_electronico String   @unique
+  id                 Int          @id @default(autoincrement())
+  nombre             String
+  cargo              String
+  area               String
+  correo_electronico String       @unique
   
-  asignaciones  Assignment[]
+  asignaciones       Assignment[]
+  activosResponsable Asset[]      @relation("EmpleadoResponsable")
   
   @@map("empleados")
 }
 
 // Modelo ACTIVO
 model Asset {
-  id               Int       @id @default(autoincrement())
-  nombre           String
-  categoria        String
-  marca            String
-  modelo           String
-  numero_serie     String       @unique
-  estado           String       // disponible, en_uso, mantenimiento, dado_baja
-  fecha_compra     DateTime     @map("fecha_compra")
+  id                    Int          @id @default(autoincrement())
+  nombre                String
+  categoria             String
+  marca                 String
+  estado                String       // disponible, en_uso, mantenimiento, dado_baja
+  ubicacion             String?
+  modelo                String
+  numero_serie          String       @unique
+  fecha_compra          DateTime
+  valor_compra          Decimal?
+  proveedor             String?
+  empleadoResponsableId Int?
   
-  asignaciones     Assignment[]
-  mantenimientos   Maintenance[]
+  empleadoResponsable   Employee?    @relation("EmpleadoResponsable", fields: [empleadoResponsableId], references: [id])
+  asignaciones          Assignment[]
+  mantenimientos        Maintenance[]
   
   @@map("activos")
 }
 
 // Modelo ASIGNACION
 model Assignment {
-  id               Int       @id @default(autoincrement())
-  activo_id        Int       
-  empleado_id      Int       
-  fecha_inicio     DateTime     @default(now())
-  fecha_fin        DateTime?
+  id            Int      @id @default(autoincrement())
+  activoId      Int
+  empleadoId    Int
+  fecha_inicio  DateTime @default(now())
+  fecha_fin     DateTime?
   
-  activo           Asset        @relation(fields: [activo_id], references: [id], onDelete: Restrict)
-  empleado         Employee     @relation(fields: [empleado_id], references: [id], onDelete: Restrict)
+  activo        Asset    @relation(fields: [activoId], references: [id], onDelete: Restrict)
+  empleado      Employee @relation(fields: [empleadoId], references: [id], onDelete: Restrict)
   
-  @@unique([activo_id, fecha_fin])
-  @@index([activo_id])
-  @@index([empleado_id])
+  @@unique([activoId, fecha_fin])
+  @@index([activoId])
+  @@index([empleadoId])
   @@map("asignaciones")
 }
 
 // Modelo MANTENIMIENTO
 model Maintenance {
-  id               Int       @id @default(autoincrement())
-  activo_id        Int       
-  tipo             String       // preventivo, correctivo
-  descripcion      String
-  fecha            DateTime     @default(now())
-  tecnico          String
+  id                Int      @id @default(autoincrement())
+  activoId          Int
+  activo_nombre     String
+  tipo              String   // preventivo, correctivo, revision_general, revision_de_software
+  descripcion       String
+  fecha_programada  DateTime
+  responsable       String
+  estado            String   // pendiente, en_proceso, programado, pendiente_de_respuesta, vencido
   
-  activo           Asset        @relation(fields: [activo_id], references: [id], onDelete: Cascade)
+  activo            Asset    @relation(fields: [activoId], references: [id], onDelete: Cascade)
   
-  @@index([activo_id])
-  @@index([fecha])
+  @@index([activoId])
+  @@index([fecha_programada])
   @@map("mantenimientos")
 }

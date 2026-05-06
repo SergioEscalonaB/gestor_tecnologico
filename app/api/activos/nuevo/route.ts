@@ -7,22 +7,29 @@ const prisma = new PrismaClient({ adapter });
 // Crear nuevo activo
 export async function POST(req: Request) {
   const body = await req.json();
-  const { nombre, tipo, marca, modelo, numero_serie, estado, fecha_compra } = body;
+  const { nombre, categoria, marca, modelo, numero_serie, estado, ubicacion, fecha_compra, valor_compra, proveedor, empleadoResponsableId } = body;
 
-  if (!nombre || !tipo || !marca || !modelo || !numero_serie || !estado || !fecha_compra) {
+  if (!nombre || !categoria || !marca || !modelo || !numero_serie || !estado || !fecha_compra) {
     return Response.json(
-      { error: "Todos los campos son obligatorios" },
+      { error: "nombre, categoria, marca, modelo, numero_serie, estado y fecha_compra son obligatorios" },
       { status: 400 }
     );
   }
 
   const activo = await prisma.asset.create({
     data: {
-      nombre, tipo, marca, modelo,
-      numero_serie, estado,
-      fecha_compra: new Date(fecha_compra) // convierte string a Date
+      nombre, 
+      categoria, 
+      marca, 
+      modelo,
+      numero_serie, 
+      estado, 
+      ubicacion : ubicacion ?? null, 
+      fecha_compra: new Date(fecha_compra),
+      valor_compra : valor_compra ?? null, 
+      proveedor : proveedor ?? null, 
+      empleadoResponsableId : empleadoResponsableId ?? null
     }
   });
-
   return Response.json(activo, { status: 201 });
 }

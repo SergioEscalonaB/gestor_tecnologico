@@ -32,7 +32,7 @@ export async function PUT(
   const { id } = await params;
   const idNumber = parseInt(id);
   const body = await req.json();
-  const { descripcion, tecnico } = body;
+  const { tipo, descripcion, fecha_programada, responsable, estado } = body;
 
   const mantenimiento = await prisma.maintenance.findUnique({
     where: { id: idNumber }
@@ -46,10 +46,10 @@ export async function PUT(
   const [mantenimientoActualizado] = await prisma.$transaction([
     prisma.maintenance.update({
       where: { id: idNumber },
-      data: { descripcion, tecnico }
+      data: { tipo, descripcion, fecha_programada : new Date(fecha_programada), responsable, estado }
     }),
     prisma.asset.update({
-      where: { id: mantenimiento.activo_id },
+      where: { id: mantenimiento.activoId },
       data: { estado: "disponible" } // EL activo vuelve a disponible
     })
   ]);
