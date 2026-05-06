@@ -20,10 +20,10 @@ export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       {/* Sidebar */}
       <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
 
-      {/* Area de contenido principal */}
+      {/* Area de contenido principal - tamaño*/}
       <div 
         className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
-          isCollapsed ? "lg:ml-20" : "lg:ml-64"
+          isCollapsed ? "lg:ml-10" : "lg:ml-54"
         }`}
       >
         {/* Navbar */}
