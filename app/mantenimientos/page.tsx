@@ -51,10 +51,11 @@ export default function Mantenimientos() {
 
   // Filtro de busqueda y filtros de tabla
   const mantenimientosFiltrados = mantenimientos.filter((m) => {
+    const texto = busqueda.toLowerCase();
     const coincideBusqueda =
-      (m.activo_nombre?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
-      (m.tipo?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
-      (m.responsable?.toLowerCase() || "").includes(busqueda.toLowerCase());
+      (m.activo_nombre?.toLowerCase() || "").includes(texto) ||
+      (m.tipo?.toLowerCase() || "").includes(texto) ||
+      (m.responsable?.toLowerCase() || "").includes(texto);
     
     const coincideTipo = filtroTipo === "" || m.tipo?.toLowerCase() === filtroTipo.toLowerCase();
     const coincideEstado = filtroEstado === "" || m.estado?.toLowerCase() === filtroEstado.toLowerCase();
@@ -65,7 +66,6 @@ export default function Mantenimientos() {
   // Paginación
   const totalPaginas = Math.ceil(mantenimientosFiltrados.length / ITEMS_POR_PAGINA);
   const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
-  const fin = inicio + ITEMS_POR_PAGINA;
   const mantenimientosPagina = mantenimientosFiltrados.slice(inicio, inicio + ITEMS_POR_PAGINA);
 
   // Funcion auxiliar para mostrar estado con colores y etiquetas
@@ -76,6 +76,7 @@ export default function Mantenimientos() {
       case "programado":    return "bg-purple-100 text-purple-700 border border-purple-200";
       case "pendiente_de_respuesta":     return "bg-orange-100 text-orange-700 border border-orange-200";
       case "vencido":     return "bg-red-100 text-red-700 border border-red-200";
+      case "finalizado":     return "bg-green-100 text-green-700 border border-green-200";
       default:              return "bg-gray-100 text-gray-600 border border-gray-200";
     }
   }
@@ -88,6 +89,7 @@ export default function Mantenimientos() {
       case "programado": return "Programado";
       case "pendiente_de_respuesta": return "Pendiente de Respuesta";
       case "vencido": return "Vencido";
+      case "finalizado": return "Finalizado";
       default: return estado;
     }
   }
