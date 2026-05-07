@@ -5,6 +5,8 @@ import {
   Search, Filter, Plus, ChevronLeft, ChevronRight, Trash2, Eye, X
 } from "lucide-react";
 import { Activo } from "@/tipos/activo";
+import { NuevoActivo } from "@/components/activos/NuevoActivo";
+import { useActivoStore } from "@/store/activoStore";
 
 const ITEMS_POR_PAGINA = 8;
 
@@ -20,6 +22,9 @@ export default function Activos() {
   const [selectedActivo, setSelectedActivo] = useState<Activo | null>(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
+  const [mostrarNuevo, setMostrarNuevo] = useState(false);
+  const actualizar = useActivoStore((state) => state.actualizar);
+
   // Carga activos desde la API
   useEffect(() => {
     setCargando(true);
@@ -29,7 +34,7 @@ export default function Activos() {
         setActivos(data);
         setCargando(false);
       });
-  }, []);
+  }, [actualizar]); // Para recargar la lista cuando se actualice desde el store
 
   // Reinicia la página actual al cambiar búsqueda o filtros
   useEffect(() => {
@@ -134,7 +139,9 @@ export default function Activos() {
                   <span className="w-2 h-2 rounded-full bg-blue-600" />
                 )}
               </button>
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
+              <button
+                onClick={() => setMostrarNuevo(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
                 <Plus size={20} />
                 <span>Nuevo Activo</span>
               </button>
@@ -379,6 +386,8 @@ export default function Activos() {
             </button>
           </div>
         </div>
+        {/*  Aca el modal de nuevo activo  */}
+        <NuevoActivo isOpen={mostrarNuevo} onClose={() => setMostrarNuevo(false)} />
       </div>
     </div>
   );

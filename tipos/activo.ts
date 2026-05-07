@@ -1,12 +1,15 @@
 
 export type Activo = {
-    id: number;
+  id: number;
   nombre: string;
   categoria: string;
   marca: string;
-  estado: string;
-  ubicacion: string | null;
   modelo: string;
   numero_serie: string;
-
+  estado: string;
+  ubicacion: string | null;
+  valor_compra: number | null;
+  proveedor: string | null;
+  fecha_compra: string;
+  empleadoResponsableId: number | null;
 };
