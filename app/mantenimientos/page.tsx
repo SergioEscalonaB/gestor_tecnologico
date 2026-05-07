@@ -12,8 +12,8 @@ import {
 
 type Mantenimiento = {
   id: number;
-  activdoId: number;
-  activoNombre: string;
+  activoId: number;
+  activo_nombre: string;
   tipo: string;
   descripcion: string;
   fecha_programada: Date;
@@ -26,11 +26,11 @@ const ITEMS_POR_PAGINA = 8;
 //Componentes principales de Manteminientos
 export default function Mantenimientos() {
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
-  const [paginaActual, setPaginaActual] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("");
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(false);
 
   // Cargar mantenimientos desde la API
@@ -44,7 +44,64 @@ export default function Mantenimientos() {
       });
   }, []);
 
+  // Reiniciar la pagina actual al cambiar busqueda o filtros
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, filtroTipo, filtroEstado]);
 
+  // Filtro de busqueda y filtros de tabla
+  const mantenimientosFiltrados = mantenimientos.filter((m) => {
+    const coincideBusqueda =
+      (m.activo_nombre?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (m.tipo?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (m.responsable?.toLowerCase() || "").includes(busqueda.toLowerCase());
+    
+    const coincideTipo = filtroTipo === "" || m.tipo?.toLowerCase() === filtroTipo.toLowerCase();
+    const coincideEstado = filtroEstado === "" || m.estado?.toLowerCase() === filtroEstado.toLowerCase();
+    
+    return coincideBusqueda && coincideTipo && coincideEstado;
+  });
+
+  // Paginación
+  const totalPaginas = Math.ceil(mantenimientosFiltrados.length / ITEMS_POR_PAGINA);
+  const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
+  const fin = inicio + ITEMS_POR_PAGINA;
+  const mantenimientosPagina = mantenimientosFiltrados.slice(inicio, inicio + ITEMS_POR_PAGINA);
+
+  // Funcion auxiliar para mostrar estado con colores y etiquetas
+  function colorEstado(estado: string) {
+    switch (estado) {
+      case "pendiente":     return "bg-yellow-100 text-yellow-700 border border-yellow-200";
+      case "en_proceso":     return "bg-blue-100 text-blue-700 border border-blue-200";
+      case "programado":    return "bg-purple-100 text-purple-700 border border-purple-200";
+      case "pendiente_de_respuesta":     return "bg-orange-100 text-orange-700 border border-orange-200";
+      case "vencido":     return "bg-red-100 text-red-700 border border-red-200";
+      default:              return "bg-gray-100 text-gray-600 border border-gray-200";
+    }
+  }
+
+  // Convierte el estado del mantenimiento a una etiqueta legible
+  function labelEstado(estado: string) {
+    switch (estado) {
+      case "pendiente": return "Pendiente";
+      case "en_proceso": return "En Proceso";
+      case "programado": return "Programado";
+      case "pendiente_de_respuesta": return "Pendiente de Respuesta";
+      case "vencido": return "Vencido";
+      default: return estado;
+    }
+  }
+
+  // Convierte el tipo de mantenimiento a una etiqueta legible
+  function labelTipo(tipo: string) {
+    switch (tipo) {
+      case "preventivo": return "Preventivo";
+      case "correctivo": return "Correctivo";
+      case "revision_general": return "Revision General";
+      case "revision_de_software": return "Revision de Software";
+      default: return tipo;
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -134,6 +191,9 @@ export default function Mantenimientos() {
                     <option value="pendiente">Pendiente</option>
                     <option value="en_proceso">En Proceso</option>
                     <option value="completado">Completado</option>
+                    <option value="programado">Programado</option>
+                    <option value="pendiente_de_respuesta">Pendiente de Respuesta</option>
+                    <option value="vencido">Vencido</option>
                   </select>
                 </div>
 
@@ -165,16 +225,98 @@ export default function Mantenimientos() {
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Estado</th>
               </tr>
             </thead>
-            <tbody>
-              
+            <tbody className="divide-y divide-gray-100">
+              {cargando ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                    Cargando mantenimientos...
+                  </td>
+                </tr>
+              ) : mantenimientosPagina.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                    No se encontraron mantenimientos.
+                  </td>
+                </tr>
+              ) : (
+                mantenimientosPagina.map((mantenimiento) => (
+                  <tr key={mantenimiento.id}>
+                    <td className="px-6 py-4 text-sm text-gray-900">{mantenimiento.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{mantenimiento.activo_nombre}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{labelTipo(mantenimiento.tipo)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {new Date(mantenimiento.fecha_programada).toLocaleDateString('es-ES')}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">{mantenimiento.responsable}</td>
+                    <td className="px-6 py-4 text-sm text-right">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(mantenimiento.estado)}`}>
+                        {labelEstado(mantenimiento.estado)}  
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
+        {/* Paginación */}
+        <div className="p-6 bg-white border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-gray-500">
+            Mostrando{" "}
+            <span className="font-semibold text-gray-900">{Math.min(inicio + 1, mantenimientosFiltrados.length)}</span>
+            {" "}a{" "}
+            <span className="font-semibold text-gray-900">{Math.min(inicio + ITEMS_POR_PAGINA, mantenimientosFiltrados.length)}</span>
+            {" "}de{" "}
+            <span className="font-semibold text-gray-900">{mantenimientosFiltrados.length}</span> registros
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPaginaActual((p) => Math.max(p - 1, 1))}
+              disabled={paginaActual === 1}
+              className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={18} />
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPaginas }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPaginas || Math.abs(p - paginaActual) <= 1)
+                .reduce((acc: (number | string)[], p, i, arr) => {
+                  if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push("...");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, i) =>
+                  p === "..." ? (
+                    <span key={`dots-${i}`} className="px-2 text-gray-400 text-sm">...</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPaginaActual(p as number)}
+                      className={`w-9 h-9 flex items-center justify-center rounded-lg font-medium text-sm transition-colors ${
+                        paginaActual === p
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : "hover:bg-gray-50 text-gray-600 border border-transparent hover:border-gray-200"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+            </div>
+
+            <button
+              onClick={() => setPaginaActual((p) => Math.min(p + 1, totalPaginas))}
+              disabled={paginaActual === totalPaginas || totalPaginas === 0}
+              className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
       </div>
-
-
-
-
       </div>
   );
 }
