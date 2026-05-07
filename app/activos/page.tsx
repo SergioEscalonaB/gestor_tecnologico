@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { 
-  Search, Filter, Plus, ChevronLeft, ChevronRight, Trash2
+  Search, Filter, Plus, ChevronLeft, ChevronRight, Trash2, Eye, X
 } from "lucide-react";
 import { Activo } from "@/tipos/activo";
 
@@ -17,6 +17,8 @@ export default function Activos() {
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(true);
+  const [selectedActivo, setSelectedActivo] = useState<Activo | null>(null);
+  const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
   // Carga activos desde la API
   useEffect(() => {
@@ -219,7 +221,17 @@ export default function Activos() {
                 </tr>
               ) : (
                 activosPagina.map((activo) => (
-                  <tr key={activo.id} className="hover:bg-blue-50/30 transition-colors group">
+                  // Aca para cada activo se renderiza una fila, con un onClick para seleccionar/deseleccionar y mostrar el detalle al hacer click en el icono de ojo
+                  <tr
+                    key={activo.id}
+                    onClick={() => {
+                      // seleccionar / deseleccionar fila
+                      setSelectedActivo((prev) => (prev?.id === activo.id ? null : activo));
+                      setMostrarDetalle(false);
+                    }}
+                    className={`transition-colors group cursor-pointer ${selectedActivo?.id === activo.id ? 'bg-blue-100/60' : 'hover:bg-blue-50/30'}`}
+                  >
+                    {/* -- */}
                     <td className="px-6 py-4">
                       <span className="text-sm font-bold text-gray-700">#{activo.id}</span>
                     </td>
@@ -242,7 +254,22 @@ export default function Activos() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right text-sm text-gray-600">
-                      {activo.ubicacion ?? "Sin ubicación"}
+                      {/* Ubicación y botón de detalle */}
+                      <div className="flex items-center justify-end gap-3">
+                        <span>{activo.ubicacion ?? "Sin ubicación"}</span>
+                        
+                        {/* Botón ojo que aparece cuando la fila está seleccionada */}
+                        {selectedActivo?.id === activo.id && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMostrarDetalle(true); }}
+                            aria-label="Ver detalle"
+                            className="p-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        )}
+                      </div>
+                      {/* Aca finaliza lo del ojo /*/}
                     </td>
                   </tr>
                 ))
@@ -250,6 +277,51 @@ export default function Activos() {
             </tbody>
           </table>
         </div>
+
+        {/* Superposición de detalle */}
+        {mostrarDetalle && selectedActivo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setMostrarDetalle(false)} />
+            <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 z-10">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">{selectedActivo.nombre}</h2>
+                  <p className="text-sm text-gray-500">ID #{selectedActivo.id} · {selectedActivo.categoria}</p>
+                </div>
+                <button onClick={() => setMostrarDetalle(false)} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                <div>
+                  <div className="text-xs text-gray-500 uppercase font-semibold">Marca</div>
+                  <div className="mt-1">{selectedActivo.marca}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 uppercase font-semibold">Modelo</div>
+                  <div className="mt-1">{selectedActivo.modelo}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 uppercase font-semibold">Número de serie</div>
+                  <div className="mt-1">{selectedActivo.numero_serie}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 uppercase font-semibold">Ubicación</div>
+                  <div className="mt-1">{selectedActivo.ubicacion ?? 'Sin ubicación'}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 uppercase font-semibold">Estado</div>
+                  <div className="mt-1">{labelEstado(selectedActivo.estado)}</div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button onClick={() => setMostrarDetalle(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Paginación */}
         <div className="p-6 bg-white border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
