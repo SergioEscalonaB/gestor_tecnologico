@@ -9,7 +9,8 @@ import {
   Tags,
   Menu,
   Wrench,
-  X
+  X,
+  Users
 } from "lucide-react";
 
 // Interface para las propiedades del item de la barra lateral
@@ -62,8 +63,8 @@ export const Sidebar = ({ isCollapsed, toggleSidebar }: SidebarProps) => {
     { href: "/dashboard", icon: <LayoutDashboard size={22} />, label: "Dashboard", section: "principal" },
     { href: "/activos", icon: <Laptop size={22} />, label: "Activos", section: "principal" },
     { href: "/categorias", icon: <Tags size={22} />, label: "Categorías", section: "principal" },
-    { href: "/mantenimientos", icon: <Wrench size={22} />, label: "Mantenimientos", section: "mantenimiento" }
-    
+    { href: "/mantenimientos", icon: <Wrench size={22} />, label: "Mantenimientos", section: "mantenimiento" },
+    { href: "/usuarios", icon: <Users size={22} />, label: "Usuarios", section: "usuarios" }
   ];
 
   return (
@@ -115,6 +116,22 @@ export const Sidebar = ({ isCollapsed, toggleSidebar }: SidebarProps) => {
             )}
             
             {menuItems.filter(item => item.section === "mantenimiento").map((item) => (
+              <SidebarItem 
+                key={item.href}
+                {...item}
+                active={pathname === item.href}
+                isCollapsed={isCollapsed}
+              />
+            ))}
+            
+            {/* Barra de navegación Otros */}
+            {!isCollapsed && (
+              <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest my-4 px-4">
+                Otros
+              </div>
+            )}
+            
+            {menuItems.filter(item => item.section === "usuarios").map((item) => (
               <SidebarItem 
                 key={item.href}
                 {...item}
