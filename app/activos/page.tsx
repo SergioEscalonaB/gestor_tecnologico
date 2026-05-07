@@ -242,17 +242,20 @@ export default function Activos() {
                     <td className="px-6 py-4">
                       <span className="text-sm font-bold text-gray-700">#{activo.id}</span>
                     </td>
+
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">{activo.nombre}</span>
                         <span className="text-xs text-gray-400">{activo.numero_serie}</span>
                       </div>
                     </td>
+
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
                         {activo.categoria}
                       </span>
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-600">{activo.marca}</td>
                     <td className="px-6 py-4 text-center">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(activo.estado)}`}>
@@ -260,6 +263,7 @@ export default function Activos() {
                         {activo.estado === "dado_baja" && <Trash2 size={12} />}
                       </span>
                     </td>
+
                     <td className="px-6 py-4 text-right text-sm text-gray-600">
                       {/* Ubicación y botón de detalle */}
                       <div className="flex items-center justify-end gap-3">
@@ -278,6 +282,7 @@ export default function Activos() {
                       </div>
                       {/* Aca finaliza lo del ojo /*/}
                     </td>
+
                   </tr>
                 ))
               )}
@@ -303,23 +308,23 @@ export default function Activos() {
               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
                 <div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Marca</div>
-                  <div className="mt-1">{selectedActivo.marca}</div>
+                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.marca}</div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Modelo</div>
-                  <div className="mt-1">{selectedActivo.modelo}</div>
+                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.modelo}</div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Número de serie</div>
-                  <div className="mt-1">{selectedActivo.numero_serie}</div>
+                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.numero_serie}</div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Ubicación</div>
-                  <div className="mt-1">{selectedActivo.ubicacion ?? 'Sin ubicación'}</div>
+                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.ubicacion ?? 'Sin ubicación'}</div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500 uppercase font-semibold">Estado</div>
-                  <div className="mt-1">{labelEstado(selectedActivo.estado)}</div>
+                  <div className="mt-mt-0.5 text-gray-700 font-medium">{labelEstado(selectedActivo.estado)}</div>
                 </div>
               </div>
 

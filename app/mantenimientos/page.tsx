@@ -8,6 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  Eye,
+  X,
 } from "lucide-react";
 
 type Mantenimiento = {
@@ -16,9 +18,19 @@ type Mantenimiento = {
   activo_nombre: string;
   tipo: string;
   descripcion: string;
-  fecha_programada: Date;
+  fecha_programada: string;
   responsable: string;
   estado: string;
+  activo?: {
+    id: number;
+    nombre: string;
+    categoria: string;
+    marca: string;
+    modelo: string;
+    numero_serie: string;
+    ubicacion: string;
+    estado: string;
+  };
 };
 
 const ITEMS_POR_PAGINA = 8;
@@ -32,6 +44,8 @@ export default function Mantenimientos() {
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(false);
+  const [selectedMantenimiento, setSelectedMantenimiento] = useState<Mantenimiento | null>(null);
+  const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
   // Cargar mantenimientos desde la API
   useEffect(() => {
@@ -223,8 +237,8 @@ export default function Mantenimientos() {
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Activo</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo de mantenimiento</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha programada</th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Responsable</th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Estado</th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Estado</th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Responsable</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -242,18 +256,39 @@ export default function Mantenimientos() {
                 </tr>
               ) : (
                 mantenimientosPagina.map((mantenimiento) => (
-                  <tr key={mantenimiento.id}>
+                  <tr key={mantenimiento.id} onClick={() => {
+                      // seleccionar / deseleccionar fila
+                      setSelectedMantenimiento((prev) => (prev?.id === mantenimiento.id ? null : mantenimiento));
+                      setMostrarDetalle(false);
+                    }}
+                    className={`transition-colors group cursor-pointer ${selectedMantenimiento?.id === mantenimiento.id ? 'bg-blue-100/60' : 'hover:bg-blue-50/30'}`}
+                  >
+                    {/* -- */}
                     <td className="px-6 py-4 text-sm text-gray-900">{mantenimiento.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{mantenimiento.activo_nombre}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{labelTipo(mantenimiento.tipo)}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {new Date(mantenimiento.fecha_programada).toLocaleDateString('es-ES')}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-center">{mantenimiento.responsable}</td>
-                    <td className="px-6 py-4 text-sm text-right">
+                    <td className="px-6 py-4 text-sm text-center">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(mantenimiento.estado)}`}>
                         {labelEstado(mantenimiento.estado)}  
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      <div className="flex items-center justify-end gap-3">
+                        <span>{mantenimiento.responsable ?? "- -"}</span>
+                        {/* Botón ojo que aparece cuando la fila está seleccionada */}
+                        {selectedMantenimiento?.id === mantenimiento.id && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMostrarDetalle(true); }}
+                            aria-label="Ver detalle"
+                            className="p-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors"
+                          >
+                            <Eye size={18} />
+                          </button>
+                          )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -261,6 +296,88 @@ export default function Mantenimientos() {
             </tbody>
           </table>
         </div>
+
+        {/* Superposición de detalle */}
+        {mostrarDetalle && selectedMantenimiento && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={() => setMostrarDetalle(false)} />
+            <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 z-10">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">{selectedMantenimiento.activo_nombre}</h2>
+                  <p className="text-sm text-gray-500">ID #{selectedMantenimiento.id} · {labelTipo(selectedMantenimiento.tipo)}</p>
+                </div>
+                <button onClick={() => setMostrarDetalle(false)} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                {/* Columna Mantenimiento */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                    <div className="w-1 h-4 bg-blue-600 rounded-full"></div>
+                    <h3 className="font-bold text-gray-900 uppercase tracking-wider text-xs">Información del Mantenimiento</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Responsable</div>
+                      <div className="mt-0.5 text-gray-700 font-medium">{selectedMantenimiento.responsable}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Fecha Programada</div>
+                      <div className="mt-0.5 text-gray-700 font-medium">{new Date(selectedMantenimiento.fecha_programada).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Descripción</div>
+                      <div className="mt-1.5 p-3 bg-gray-50 rounded-xl text-gray-600 italic border border-gray-100">
+                        "{selectedMantenimiento.descripcion}"
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Columna Activo */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                    <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+                    <h3 className="font-bold text-gray-900 uppercase tracking-wider text-xs">Detalles del Activo</h3>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Marca y Modelo</div>
+                      <div className="mt-0.5 text-gray-700 font-medium">
+                        {selectedMantenimiento.activo?.marca} {selectedMantenimiento.activo?.modelo}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Número de Serie</div>
+                      <div className="mt-0.5 text-gray-700 font-medium">{selectedMantenimiento.activo?.numero_serie}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Categoría</div>
+                      <div className="mt-0.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase">
+                          {selectedMantenimiento.activo?.categoria}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="col-span-2">
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Ubicación Actual</div>
+                      <div className="mt-0.5 text-gray-700 font-medium">{selectedMantenimiento.activo?.ubicacion ?? 'No especificada'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button onClick={() => setMostrarDetalle(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Paginación */}
         <div className="p-6 bg-white border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-4">
