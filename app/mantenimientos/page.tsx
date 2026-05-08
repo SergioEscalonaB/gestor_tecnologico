@@ -14,6 +14,7 @@ import {
 import { useMantenimientoStore } from "@/store/mantenimientoStore";
 import { NuevoMantenimiento } from "@/components/mantenimiento/NuevoMantenimiento";
 import { CambiarEstado } from "@/components/mantenimiento/CambiarEstado";
+import { EditarMantenimiento } from "@/components/mantenimiento/EditarMantenimiento";
 
 type Mantenimiento = {
   id: number;
@@ -52,6 +53,9 @@ export default function Mantenimientos() {
 
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
   const actualizar = useMantenimientoStore((state) => state.actualizar);
+
+  const [modoEdicion, setModoEdicion] = useState(false);
+
 
   // Cargar mantenimientos desde la API
   useEffect(() => {
@@ -309,16 +313,32 @@ export default function Mantenimientos() {
         {/* Superposición de detalle */}
         {mostrarDetalle && selectedMantenimiento && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={() => setMostrarDetalle(false)} />
+            <div className="absolute inset-0 bg-black/40" onClick={() => {setMostrarDetalle(false); setModoEdicion(false);}} />
             <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 z-10">
+              {/*Header de detalle*/}
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">{selectedMantenimiento.activo_nombre}</h2>
                   <p className="text-sm text-gray-500">ID #{selectedMantenimiento.id} · {labelTipo(selectedMantenimiento.tipo)}</p>
                 </div>
-                <button onClick={() => setMostrarDetalle(false)} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
-                  <X size={18} />
-                </button>
+
+                <div className="flex items-center gap-2">
+                  {/* Botón editar / cancelar edición */}
+                  <button
+                    onClick={() => setModoEdicion((prev) => !prev)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                      modoEdicion
+                        ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                    }`}
+                  >
+                    {modoEdicion ? "Cancelar" : "Editar"}
+                  </button>
+
+                  <button onClick={() => { setMostrarDetalle(false); setModoEdicion(false); }} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                    <X size={18} />
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
@@ -329,6 +349,19 @@ export default function Mantenimientos() {
                     <h3 className="font-bold text-gray-900 uppercase tracking-wider text-xs">Información del Mantenimiento</h3>
                   </div>
                   
+                  {/* Mostrar los datos del mantenimiento */}
+                  {modoEdicion ? (
+                    // Editar los datos del mantenimiento
+                    <EditarMantenimiento
+                      mantenimiento={selectedMantenimiento}
+                      onGuardado={(actualizado) => {
+                        setSelectedMantenimiento(actualizado);
+                        setModoEdicion(false);
+                        // Recargas la tabla o actualizas localmente si lo prefieres
+                        useMantenimientoStore.getState().refrescar();
+                      }}
+                    />
+                  ) : (
                   <div className="grid grid-cols-1 gap-3">
                     <div>
                       {/* Responsable*/}
@@ -348,6 +381,7 @@ export default function Mantenimientos() {
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
 
                 {/* Columna Activo */}
