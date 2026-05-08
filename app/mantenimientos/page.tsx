@@ -11,6 +11,8 @@ import {
   Eye,
   X,
 } from "lucide-react";
+import { useMantenimientoStore } from "@/store/mantenimientoStore";
+import { NuevoMantenimiento } from "@/components/mantenimiento/NuevoMantenimiento";
 
 type Mantenimiento = {
   id: number;
@@ -47,6 +49,9 @@ export default function Mantenimientos() {
   const [selectedMantenimiento, setSelectedMantenimiento] = useState<Mantenimiento | null>(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
+  const [mostrarNuevo, setMostrarNuevo] = useState(false);
+  const actualizar = useMantenimientoStore((state) => state.refrescar);
+
   // Cargar mantenimientos desde la API
   useEffect(() => {
     setCargando(true);
@@ -56,7 +61,7 @@ export default function Mantenimientos() {
         setMantenimientos(data);
         setCargando(false);
       });
-  }, []);
+  }, [actualizar]); //Para recargar la lista cuando se actualice el store
 
   // Reiniciar la pagina actual al cambiar busqueda o filtros
   useEffect(() => {
@@ -168,7 +173,9 @@ export default function Mantenimientos() {
               </button>
 
               {/* Boton nuevo mantenimiento */}
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
+              <button 
+              onClick={() => setMostrarNuevo(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
                 <Plus size={20} />
                 <span>Nuevo Mantenimiento</span>
               </button>
@@ -435,6 +442,11 @@ export default function Mantenimientos() {
             </button>
           </div>
         </div>
+        {/*Aca el modal de nuevo mantenimiento*/}
+        <NuevoMantenimiento
+          isOpen={mostrarNuevo}
+          onClose={() => setMostrarNuevo(false)}
+        />
       </div>
       </div>
   );

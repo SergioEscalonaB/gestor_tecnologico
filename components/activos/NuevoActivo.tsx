@@ -22,6 +22,7 @@ type EmpleadoSimple = {
   cargo: string;
 };
 
+// Props del componente
 interface NuevoActivoProps {
   isOpen: boolean;
   onClose: () => void;
@@ -112,7 +113,7 @@ export const NuevoActivo = ({ isOpen, onClose }: NuevoActivoProps) => {
     setError("");
 
     try {
-      // Envía el nuevo activo al backend
+      // Envía el nuevo activo al api
       const res = await fetch("/api/activos/nuevo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
