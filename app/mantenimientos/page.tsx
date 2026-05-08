@@ -50,7 +50,7 @@ export default function Mantenimientos() {
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
-  const actualizar = useMantenimientoStore((state) => state.refrescar);
+  const actualizar = useMantenimientoStore((state) => state.actualizar);
 
   // Cargar mantenimientos desde la API
   useEffect(() => {

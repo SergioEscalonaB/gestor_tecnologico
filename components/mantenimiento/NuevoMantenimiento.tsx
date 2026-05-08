@@ -258,25 +258,29 @@ export const NuevoMantenimiento = ({ isOpen, onClose }: NuevoMantenimientoProps)
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wider ml-1">Estado *</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["programado", "en_proceso", "pendiente", "pendiente_de_respuesta", "vencido"].map((e) => (
+                  {["programado", "en_proceso", "pendiente", "pendiente_de_respuesta", "vencido", "finalizado"].map((e) => (
                     <button
+                      type="button"
                       key={e}
                       onClick={() => setEstado(e)}
                       className={`py-1.5 text-[10px] font-bold border-2 rounded-lg transition-colors ${
                         estado === e
-                          ? e === "programado"              ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : e === "en_proceso"              ? "border-orange-500 bg-orange-50 text-orange-700"
-                          : e === "pendiente"               ? "border-yellow-500 bg-yellow-50 text-yellow-700"
-                          : e === "pendiente_de_respuesta"  ? "border-purple-500 bg-purple-50 text-purple-700"
-                          : "border-red-500 bg-red-50 text-red-700"
+                          ? e === "programado"? "border-purple-500 bg-purple-50 text-purple-700"
+                          : e === "en_proceso"? "border-blue-500 bg-blue-50 text-blue-700"
+                          : e === "pendiente"? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                          : e === "pendiente_de_respuesta"? "border-orange-500 bg-orange-50 text-orange-700"
+                          : e === "vencido"? "border-red-500 bg-red-50 text-red-700"
+                          : e === "finalizado"? "border-green-500 bg-green-50 text-green-700"
                           : "border-gray-100 bg-white text-gray-400"
+                          : "border-gray-200 bg-white text-gray-600"
                       }`}
                     >
                       {e === "programado"             ? "Programado"
                       : e === "en_proceso"             ? "En Proceso"
                       : e === "pendiente"              ? "Pendiente"
                       : e === "pendiente_de_respuesta" ? "Pend. Respuesta"
-                      : "Vencido"}
+                      : e === "vencido"                ? "Vencido"
+                      : "Finalizado"}
                     </button>
                   ))}
                 </div>

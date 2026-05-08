@@ -26,43 +26,51 @@ export async function GET(req: Request) {
 
 // Registrar nuevo mantenimiento
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { activoId, tipo, descripcion, fecha_programada, responsable, estado } = body;
+  try {
+    const body = await req.json();
+    const { activoId, tipo, descripcion, fecha_programada, responsable, estado } = body;
 
-  if (!activoId || !tipo || !descripcion || !fecha_programada || !responsable || !estado) {
+    if (!activoId || !tipo || !descripcion || !fecha_programada || !responsable || !estado) {
+      return Response.json(
+        { error: "Todos los campos son obligatorios" },
+        { status: 400 }
+      );
+    }
+
+    const activo = await prisma.asset.findUnique({
+      where: { id: activoId }
+    });
+
+    if (!activo) {
+      return Response.json({ error: "Activo no encontrado" }, { status: 404 });
+    }
+
+    const [mantenimiento] = await prisma.$transaction([
+      prisma.maintenance.create({
+        data: {
+          activoId,
+          tipo,
+          descripcion,
+          fecha_programada: new Date(fecha_programada),
+          responsable,
+          estado,
+          activo_nombre: activo.nombre
+        }
+      }),
+      prisma.asset.update({
+        where: { id: activoId },
+        data: { estado: "mantenimiento" }
+      })
+    ]);
+
+    return Response.json(mantenimiento, { status: 201 });
+
+  } catch (error) {
+    // Muestra el error exacto en la respuesta
+    console.error("Error en POST mantenimientos:", error);
     return Response.json(
-      { error: "Todos los campos son obligatorios" },
-      { status: 400 }
+      { error: String(error) },
+      { status: 500 }
     );
   }
-
-  // Verificar que el activo exista
-  const activo = await prisma.asset.findUnique({
-    where: { id: activoId }
-  });
-
-  if (!activo) {
-    return Response.json({ error: "Activo no encontrado" }, { status: 404 });
-  }
-
-  // Registrar mantenimiento y cambiar estado del activo
-  const [mantenimiento] = await prisma.$transaction([
-    prisma.maintenance.create({
-  data: {
-    activoId,
-    tipo,
-    descripcion,
-    fecha_programada: new Date(fecha_programada), // conviérte a Date
-    responsable,
-    estado,
-    activo_nombre: activo.nombre
-  }
-}),
-    prisma.asset.update({
-      where: { id: activoId },
-      data: { estado: "mantenimiento" } // El activo pasa a mantenimiento
-    })
-  ]);
-
-  return Response.json(mantenimiento, { status: 201 });
 }
