@@ -295,41 +295,118 @@ export default function Activos() {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={() => setMostrarDetalle(false)} />
             <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 z-10">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">{selectedActivo.nombre}</h2>
-                  <p className="text-sm text-gray-500">ID #{selectedActivo.id} · {selectedActivo.categoria}</p>
+
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  {/*<div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+                    <span className="text-lg">💻</span>
+                  </div>*/}
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">{selectedActivo.nombre}</h2>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-400">ID #{selectedActivo.id}</span>
+                      <span className="text-gray-200">·</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 uppercase">
+                        {selectedActivo.categoria}
+                      </span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${colorEstado(selectedActivo.estado)}`}>
+                        {labelEstado(selectedActivo.estado)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <button onClick={() => setMostrarDetalle(false)} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                <button
+                  onClick={() => setMostrarDetalle(false)}
+                  className="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+              {/* Body */}
+              <div className="mt-4 space-y-4">
+
+                {/* Sección — Identificación */}
                 <div>
-                  <div className="text-xs text-gray-500 uppercase font-semibold">Marca</div>
-                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.marca}</div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-4 bg-blue-600 rounded-full"></div>
+                    <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Identificación</h3>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Marca</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">{selectedActivo.marca}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Modelo</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">{selectedActivo.modelo}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Número de Serie</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-mono font-medium">{selectedActivo.numero_serie}</div>
+                    </div>
+                  </div>
                 </div>
+
+                <div className="border-t border-gray-50" />
+
+                {/* Sección — Ubicación y compra */}
                 <div>
-                  <div className="text-xs text-gray-500 uppercase font-semibold">Modelo</div>
-                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.modelo}</div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+                    <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Ubicación y Compra</h3>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Ubicación</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">
+                        {selectedActivo.ubicacion ?? <span className="text-gray-400 italic">Sin ubicación</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Fecha de Compra</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">
+                        {selectedActivo.fecha_compra
+                          ? new Date(selectedActivo.fecha_compra).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
+                          : <span className="text-gray-400 italic">No registrada</span>
+                        }
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Valor de Compra</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">
+                        {selectedActivo.valor_compra
+                          ? `$${Number(selectedActivo.valor_compra).toLocaleString('es-CO')}`
+                          : <span className="text-gray-400 italic">No registrado</span>
+                        }
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Proveedor</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">
+                        {selectedActivo.proveedor ?? <span className="text-gray-400 italic">No registrado</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400 uppercase font-semibold">Responsable</div>
+                      <div className="mt-0.5 text-sm text-gray-800 font-medium">
+                        {selectedActivo.empleadoResponsable?.nombre ?? <span className="text-gray-400 italic">Sin asignar</span>}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-gray-500 uppercase font-semibold">Número de serie</div>
-                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.numero_serie}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 uppercase font-semibold">Ubicación</div>
-                  <div className="mt-mt-0.5 text-gray-700 font-medium">{selectedActivo.ubicacion ?? 'Sin ubicación'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 uppercase font-semibold">Estado</div>
-                  <div className="mt-mt-0.5 text-gray-700 font-medium">{labelEstado(selectedActivo.estado)}</div>
-                </div>
+
               </div>
 
-              <div className="mt-6 flex justify-end">
-                <button onClick={() => setMostrarDetalle(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Cerrar</button>
+              {/* Footer */}
+              <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+                <button
+                  onClick={() => setMostrarDetalle(false)}
+                  className="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+                >
+                  Cerrar
+                </button>
               </div>
             </div>
           </div>

@@ -11,5 +11,8 @@ export type Activo = {
   valor_compra: number | null;
   proveedor: string | null;
   fecha_compra: string;
-  empleadoResponsableId: number | null;
+  empleadoResponsable: {
+    id: number;
+    nombre: string;
+  } | null;
 };
