@@ -17,6 +17,8 @@ export function EditarActivo({
   activo: Activo;
   onGuardado: (actualizado: Activo) => void;
 }) {
+  const estaEnMantenimiento = activo.estado === "mantenimiento";
+
   const [nombre, setNombre] = useState(activo.nombre);
   const [categoria, setCategoria] = useState(activo.categoria);
   const [marca, setMarca] = useState(activo.marca);
@@ -222,10 +224,12 @@ export function EditarActivo({
 
         {/* Responsable */}
         <div className="col-span-2 space-y-1 relative">
-          <label className="text-xs font-bold text-gray-500 uppercase">
-            Responsable
-            <span className="ml-2 text-[10px] font-normal text-gray-400 normal-case">
-              {empleadoSeleccionado ? "→ estado: En Uso" : "→ estado: Disponible"}
+          <label className="text-xs font-bold text-gray-500 uppercase flex justify-between">
+            <span>Responsable</span>
+            <span className="text-[10px] font-normal text-gray-400 normal-case">
+              {estaEnMantenimiento 
+                ? "(No editable, en mantenimiento)" 
+                : (empleadoSeleccionado ? " estado: En Uso" : " estado: Disponible")}
             </span>
           </label>
 
@@ -239,7 +243,8 @@ export function EditarActivo({
               </div>
               <button
                 onClick={() => { setEmpleadoSeleccionado(null); setBusquedaEmpleado(""); }}
-                className="text-blue-400 hover:text-blue-600"
+                disabled={estaEnMantenimiento}
+                className="text-blue-400 hover:text-blue-600 disabled:opacity-30"
               >
                 <X size={16} />
               </button>
@@ -252,10 +257,11 @@ export function EditarActivo({
                   type="text"
                   placeholder="Buscar empleado..."
                   value={busquedaEmpleado}
+                  disabled={estaEnMantenimiento}
                   onChange={(e) => setBusquedaEmpleado(e.target.value)}
                   onFocus={() => busquedaEmpleado.length >= 2 && setMostrarSugerencias(true)}
                   onBlur={() => setTimeout(() => setMostrarSugerencias(false), 150)}
-                  className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
                 />
               </div>
               {mostrarSugerencias && empleados.length > 0 && (

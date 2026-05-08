@@ -35,8 +35,7 @@ export async function PUT(
   const { tipo, descripcion, fecha_programada, responsable, estado } = body;
 
   const mantenimiento = await prisma.maintenance.findUnique({
-    where: { id: idNumber },
-    include: { activo: true }
+    where: { id: idNumber }
   });
 
   if (!mantenimiento) {
@@ -58,11 +57,7 @@ export async function PUT(
     }),
     prisma.asset.update({
       where: { id: mantenimiento.activoId },
-      data: { 
-        estado: estado === "finalizado" 
-          ? (mantenimiento.activo.empleadoResponsableId ? "en_uso" : "disponible")
-          : "mantenimiento"
-      }
+      data: { estado: estado === "finalizado" ? "disponible" : "mantenimiento" }
     })
   ]);
 
