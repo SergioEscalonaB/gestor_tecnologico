@@ -46,11 +46,18 @@ export async function PUT(
   const [mantenimientoActualizado] = await prisma.$transaction([
     prisma.maintenance.update({
       where: { id: idNumber },
-      data: { tipo, descripcion, fecha_programada : new Date(fecha_programada), responsable, estado }
+      data: {
+        tipo: tipo,
+        descripcion: descripcion,
+        fecha_programada: new Date(fecha_programada),
+        responsable: responsable,
+        estado: estado,
+        fecha_finalizacion: estado === "finalizado" ? new Date() : null
+      }
     }),
     prisma.asset.update({
       where: { id: mantenimiento.activoId },
-      data: { estado: "disponible" } // EL activo vuelve a disponible
+      data: { estado: estado === "finalizado" ? "disponible" : estado } // EL activo vuelve a disponible si el estado es finalizado
     })
   ]);
 

@@ -72,6 +72,7 @@ model Maintenance {
   fecha_programada  DateTime
   responsable       String
   estado            String   // pendiente, en_proceso, programado, pendiente_de_respuesta, vencido
+  fecha_finalizacion DateTime? 
   
   activo            Asset    @relation(fields: [activoId], references: [id], onDelete: Cascade)
   

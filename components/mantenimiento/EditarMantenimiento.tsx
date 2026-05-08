@@ -3,26 +3,7 @@
 import { useState } from "react";
 import { User, Calendar, FileText, ChevronDown } from "lucide-react";
 
-type Mantenimiento = {
-  id: number;
-  activoId: number;
-  activo_nombre: string;
-  tipo: string;
-  descripcion: string;
-  fecha_programada: string;
-  responsable: string;
-  estado: string;
-  activo?: {
-    id: number;
-    nombre: string;
-    categoria: string;
-    marca: string;
-    modelo: string;
-    numero_serie: string;
-    ubicacion: string;
-    estado: string;
-  };
-};
+import { Mantenimiento } from "@/tipos/mantenimiento";
 
 // Componente para editar mantenimiento
 export function EditarMantenimiento({

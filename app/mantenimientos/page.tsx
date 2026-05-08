@@ -16,26 +16,7 @@ import { NuevoMantenimiento } from "@/components/mantenimiento/NuevoMantenimient
 import { CambiarEstado } from "@/components/mantenimiento/CambiarEstado";
 import { EditarMantenimiento } from "@/components/mantenimiento/EditarMantenimiento";
 
-type Mantenimiento = {
-  id: number;
-  activoId: number;
-  activo_nombre: string;
-  tipo: string;
-  descripcion: string;
-  fecha_programada: string;
-  responsable: string;
-  estado: string;
-  activo?: {
-    id: number;
-    nombre: string;
-    categoria: string;
-    marca: string;
-    modelo: string;
-    numero_serie: string;
-    ubicacion: string;
-    estado: string;
-  };
-};
+import { Mantenimiento } from "@/tipos/mantenimiento";
 
 const ITEMS_POR_PAGINA = 8;
 
@@ -251,6 +232,7 @@ export default function Mantenimientos() {
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo de mantenimiento</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha programada</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Estado</th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Fecha de finalización</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Responsable</th>
               </tr>
             </thead>
@@ -286,6 +268,13 @@ export default function Mantenimientos() {
                     <td className="px-6 py-4 text-sm text-center">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(mantenimiento.estado)}`}>
                         {labelEstado(mantenimiento.estado)}  
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      <span className="text-xs text-gray-900">
+                        {mantenimiento.fecha_finalizacion 
+                          ? new Date(mantenimiento.fecha_finalizacion).toLocaleDateString('es-ES')
+                          : "- -"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 text-center">

@@ -1,25 +1,6 @@
 import { useState } from "react";
 
-type Mantenimiento = {
-  id: number;
-  activoId: number;
-  activo_nombre: string;
-  tipo: string;
-  descripcion: string;
-  fecha_programada: string;
-  responsable: string;
-  estado: string;
-  activo?: {
-    id: number;
-    nombre: string;
-    categoria: string;
-    marca: string;
-    modelo: string;
-    numero_serie: string;
-    ubicacion: string;
-    estado: string;
-  };
-};
+import { Mantenimiento } from "@/tipos/mantenimiento";
 
 export function CambiarEstado({
   mantenimiento,
@@ -31,6 +12,7 @@ export function CambiarEstado({
   const [nuevoEstado, setNuevoEstado] = useState(mantenimiento.estado);
   const [guardando, setGuardando]     = useState(false);
 
+  // Función que maneja el guardado del cambio de estado
   async function handleGuardar() {
     setGuardando(true);
     const res = await fetch(`/api/mantenimientos/${mantenimiento.id}`, {
