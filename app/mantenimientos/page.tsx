@@ -76,12 +76,20 @@ export default function Mantenimientos() {
   // Funcion auxiliar para mostrar estado con colores y etiquetas
   function colorEstado(estado: string) {
     switch (estado) {
+      // Estados de Mantenimiento
       case "pendiente":     return "bg-yellow-100 text-yellow-700 border border-yellow-200";
       case "en_proceso":     return "bg-blue-100 text-blue-700 border border-blue-200";
       case "programado":    return "bg-purple-100 text-purple-700 border border-purple-200";
       case "pendiente_de_respuesta":     return "bg-orange-100 text-orange-700 border border-orange-200";
       case "vencido":     return "bg-red-100 text-red-700 border border-red-200";
       case "finalizado":     return "bg-green-100 text-green-700 border border-green-200";
+      
+      // Estados de Activo
+      case "disponible":    return "bg-green-100 text-green-700 border border-green-200";
+      case "en_uso":        return "bg-blue-100 text-blue-700 border border-blue-200";
+      case "mantenimiento": return "bg-orange-100 text-orange-700 border border-orange-200";
+      case "dado_baja":     return "bg-red-100 text-red-700 border border-red-200";
+      
       default:              return "bg-gray-100 text-gray-600 border border-gray-200";
     }
   }
@@ -89,12 +97,20 @@ export default function Mantenimientos() {
   // Convierte el estado del mantenimiento a una etiqueta legible
   function labelEstado(estado: string) {
     switch (estado) {
+      // Estados de Mantenimiento
       case "pendiente": return "Pendiente";
       case "en_proceso": return "En Proceso";
       case "programado": return "Programado";
       case "pendiente_de_respuesta": return "Pendiente de Respuesta";
       case "vencido": return "Vencido";
       case "finalizado": return "Finalizado";
+      
+      // Estados de Activo
+      case "disponible":    return "Disponible";
+      case "en_uso":        return "En Uso";
+      case "mantenimiento": return "En Mantenimiento";
+      case "dado_baja":     return "Dado de Baja";
+      
       default: return estado;
     }
   }
@@ -417,8 +433,8 @@ export default function Mantenimientos() {
                     <div>
                       <div className="text-xs text-gray-500 uppercase font-semibold">Estado Actual</div>
                       <div className="mt-1">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(selectedMantenimiento.estado)}`}>
-                          {labelEstado(selectedMantenimiento.estado)}
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(selectedMantenimiento.activo?.estado || "")}`}>
+                          {labelEstado(selectedMantenimiento.activo?.estado || "")}
                         </span>
                       </div>
                     </div>

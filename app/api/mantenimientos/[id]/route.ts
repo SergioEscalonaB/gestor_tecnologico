@@ -42,7 +42,7 @@ export async function PUT(
     return Response.json({ error: "Mantenimiento no encontrado" }, { status: 404 });
   }
 
-  // Actualiza el mantenimiento y libera el activo
+  // Actualiza el mantenimiento y, si está finalizado, libera el activo
   const [mantenimientoActualizado] = await prisma.$transaction([
     prisma.maintenance.update({
       where: { id: idNumber },
@@ -55,10 +55,12 @@ export async function PUT(
         fecha_finalizacion: estado === "finalizado" ? new Date() : null
       }
     }),
-    prisma.asset.update({
-      where: { id: mantenimiento.activoId },
-      data: { estado: estado === "finalizado" ? "disponible" : estado } // EL activo vuelve a disponible si el estado es finalizado
-    })
+    ...(estado === "finalizado" 
+      ? [prisma.asset.update({
+          where: { id: mantenimiento.activoId },
+          data: { estado: "disponible" }
+        })]
+      : [])
   ]);
 
   return Response.json(mantenimientoActualizado);
