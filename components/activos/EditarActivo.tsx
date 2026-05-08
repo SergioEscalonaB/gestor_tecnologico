@@ -17,24 +17,24 @@ export function EditarActivo({
   activo: Activo;
   onGuardado: (actualizado: Activo) => void;
 }) {
-  const [nombre, setNombre]       = useState(activo.nombre);
+  const [nombre, setNombre] = useState(activo.nombre);
   const [categoria, setCategoria] = useState(activo.categoria);
-  const [marca, setMarca]         = useState(activo.marca);
-  const [modelo, setModelo]       = useState(activo.modelo);
+  const [marca, setMarca] = useState(activo.marca);
+  const [modelo, setModelo] = useState(activo.modelo);
   const [ubicacion, setUbicacion] = useState(activo.ubicacion ?? "");
   const [proveedor, setProveedor] = useState(activo.proveedor ?? "");
   const [numeroSerie, setNumeroSerie] = useState(activo.numero_serie);
 
   // Buscador de empleado responsable
-  const [busquedaEmpleado, setBusquedaEmpleado]         = useState(activo.empleadoResponsable?.nombre ?? "");
-  const [empleados, setEmpleados]                       = useState<EmpleadoSimple[]>([]);
+  const [busquedaEmpleado, setBusquedaEmpleado] = useState(activo.empleadoResponsable?.nombre ?? "");
+  const [empleados, setEmpleados] = useState<EmpleadoSimple[]>([]);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState<EmpleadoSimple | null>(
     activo.empleadoResponsable ? { id: activo.empleadoResponsable.id, nombre: activo.empleadoResponsable.nombre, cargo: "" } : null
   );
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
 
   const [guardando, setGuardando] = useState(false);
-  const [error, setError]         = useState("");
+  const [error, setError] = useState("");
 
   // Busca empleados mientras escribe
   useEffect(() => {
@@ -62,8 +62,12 @@ export function EditarActivo({
     setGuardando(true);
     setError("");
 
-    // Si tiene responsable, en_uso, si no disponible
-    const nuevoEstado = empleadoSeleccionado ? "en_uso" : "disponible";
+    // Si el estado actual es mantenimiento o dado de baja, se respeta.
+    // De lo contrario, se determina por la presencia de un responsable.
+    let nuevoEstado = activo.estado;
+    if (activo.estado !== "mantenimiento" && activo.estado !== "dado_baja") {
+      nuevoEstado = empleadoSeleccionado ? "en_uso" : "disponible";
+    }
 
     const res = await fetch(`/api/activos/${activo.id}`, {
       method: "PUT",
@@ -73,12 +77,12 @@ export function EditarActivo({
         categoria,
         marca,
         modelo,
-        numero_serie:          numeroSerie,
-        estado:                nuevoEstado,
-        ubicacion:             ubicacion  || null,
-        proveedor:             proveedor  || null,
-        fecha_compra:          activo.fecha_compra,
-        valor_compra:          activo.valor_compra,
+        numero_serie: numeroSerie,
+        estado: nuevoEstado,
+        ubicacion: ubicacion || null,
+        proveedor: proveedor || null,
+        fecha_compra: activo.fecha_compra,
+        valor_compra: activo.valor_compra,
         empleadoResponsableId: empleadoSeleccionado?.id ?? null,
       }),
     });
