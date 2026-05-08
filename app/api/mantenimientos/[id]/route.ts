@@ -35,14 +35,15 @@ export async function PUT(
   const { tipo, descripcion, fecha_programada, responsable, estado } = body;
 
   const mantenimiento = await prisma.maintenance.findUnique({
-    where: { id: idNumber }
+    where: { id: idNumber },
+    include: { activo: true }
   });
 
   if (!mantenimiento) {
     return Response.json({ error: "Mantenimiento no encontrado" }, { status: 404 });
   }
 
-  // Actualiza el mantenimiento y, si está finalizado, libera el activo
+  // Actualiza el mantenimiento y sincroniza el estado del activo
   const [mantenimientoActualizado] = await prisma.$transaction([
     prisma.maintenance.update({
       where: { id: idNumber },
@@ -55,12 +56,14 @@ export async function PUT(
         fecha_finalizacion: estado === "finalizado" ? new Date() : null
       }
     }),
-    ...(estado === "finalizado" 
-      ? [prisma.asset.update({
-          where: { id: mantenimiento.activoId },
-          data: { estado: "disponible" }
-        })]
-      : [])
+    prisma.asset.update({
+      where: { id: mantenimiento.activoId },
+      data: { 
+        estado: estado === "finalizado" 
+          ? (mantenimiento.activo.empleadoResponsableId ? "en_uso" : "disponible")
+          : "mantenimiento"
+      }
+    })
   ]);
 
   return Response.json(mantenimientoActualizado);
