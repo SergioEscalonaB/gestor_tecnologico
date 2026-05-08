@@ -48,8 +48,16 @@ export async function POST(req: Request) {
   // Registrar mantenimiento y cambiar estado del activo
   const [mantenimiento] = await prisma.$transaction([
     prisma.maintenance.create({
-      data: { activoId, tipo, descripcion, fecha_programada, responsable, estado, activo_nombre: activo.nombre }
-    }),
+  data: {
+    activoId,
+    tipo,
+    descripcion,
+    fecha_programada: new Date(fecha_programada), // conviérte a Date
+    responsable,
+    estado,
+    activo_nombre: activo.nombre
+  }
+}),
     prisma.asset.update({
       where: { id: activoId },
       data: { estado: "mantenimiento" } // El activo pasa a mantenimiento
