@@ -7,6 +7,7 @@ import {
 import { Activo } from "@/tipos/activo";
 import { NuevoActivo } from "@/components/activos/NuevoActivo";
 import { useActivoStore } from "@/store/activoStore";
+import { EditarActivo } from "@/components/activos/EditarActivo";
 
 const ITEMS_POR_PAGINA = 8;
 
@@ -24,6 +25,8 @@ export default function Activos() {
 
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
   const actualizar = useActivoStore((state) => state.actualizar);
+
+  const [modoEdicion, setModoEdicion] = useState(false);
 
   // Carga activos desde la API
   useEffect(() => {
@@ -316,15 +319,42 @@ export default function Activos() {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setMostrarDetalle(false)}
-                  className="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                >
-                  <X size={18} />
-                </button>
+
+                {/* Botón Editar / Cancelar */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setModoEdicion((prev) => !prev)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
+                      modoEdicion
+                        ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                    }`}
+                  >
+                    {modoEdicion ? "Cancelar" : "Editar"}
+                  </button>
+                  <button
+                    onClick={() => { setMostrarDetalle(false); setModoEdicion(false); }}
+                    className="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+              </div>
               </div>
 
               {/* Body */}
+              {modoEdicion ? (
+              // Modo Edicion
+              <div className="mt-4">
+                <EditarActivo
+                  activo={selectedActivo}
+                  onGuardado={(actualizado) => {
+                    setSelectedActivo(actualizado);
+                    setModoEdicion(false);
+                    useActivoStore.getState().refrescar();
+                  }}
+                />
+              </div>
+            ) : (
               <div className="mt-4 space-y-4">
 
                 {/* Sección — Identificación */}
@@ -398,6 +428,7 @@ export default function Activos() {
                 </div>
 
               </div>
+              )}
 
               {/* Footer */}
               <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
