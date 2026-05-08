@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useMantenimientoStore } from "@/store/mantenimientoStore";
 import { NuevoMantenimiento } from "@/components/mantenimiento/NuevoMantenimiento";
+import { CambiarEstado } from "@/components/mantenimiento/CambiarEstado";
 
 type Mantenimiento = {
   id: number;
@@ -124,6 +125,7 @@ export default function Mantenimientos() {
     }
   }
 
+  //
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -329,14 +331,17 @@ export default function Mantenimientos() {
                   
                   <div className="grid grid-cols-1 gap-3">
                     <div>
+                      {/* Responsable*/}
                       <div className="text-xs text-gray-500 uppercase font-semibold">Responsable</div>
                       <div className="mt-0.5 text-gray-700 font-medium">{selectedMantenimiento.responsable}</div>
                     </div>
                     <div>
+                      {/* Fecha Programada */}
                       <div className="text-xs text-gray-500 uppercase font-semibold">Fecha Programada</div>
                       <div className="mt-0.5 text-gray-700 font-medium">{new Date(selectedMantenimiento.fecha_programada).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                     </div>
                     <div>
+                      {/* Descripción */}
                       <div className="text-xs text-gray-500 uppercase font-semibold">Descripción</div>
                       <div className="mt-1.5 p-3 bg-gray-50 rounded-xl text-gray-600 italic border border-gray-100">
                         "{selectedMantenimiento.descripcion}"
@@ -353,16 +358,21 @@ export default function Mantenimientos() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
+                    {/* Marca y Modelo ocupa las 2 columnas */}
                     <div className="col-span-2">
                       <div className="text-xs text-gray-500 uppercase font-semibold">Marca y Modelo</div>
                       <div className="mt-0.5 text-gray-700 font-medium">
                         {selectedMantenimiento.activo?.marca} {selectedMantenimiento.activo?.modelo}
                       </div>
                     </div>
+
+                    {/* Número de Serie */}
                     <div>
                       <div className="text-xs text-gray-500 uppercase font-semibold">Número de Serie</div>
                       <div className="mt-0.5 text-gray-700 font-medium">{selectedMantenimiento.activo?.numero_serie}</div>
                     </div>
+
+                    {/* Categoría — misma fila que número de serie */}
                     <div>
                       <div className="text-xs text-gray-500 uppercase font-semibold">Categoría</div>
                       <div className="mt-0.5">
@@ -371,14 +381,44 @@ export default function Mantenimientos() {
                         </span>
                       </div>
                     </div>
-                    <div className="col-span-2">
-                      <div className="text-xs text-gray-500 uppercase font-semibold">Ubicación Actual</div>
-                      <div className="mt-0.5 text-gray-700 font-medium">{selectedMantenimiento.activo?.ubicacion ?? 'No especificada'}</div>
+
+                    {/* Ubicación — misma fila que estado actual */}
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Ubicación</div>
+                      <div className="mt-0.5 text-gray-700 font-medium">
+                        {selectedMantenimiento.activo?.ubicacion ?? 'No especificada'}
+                      </div>
                     </div>
+
+                    {/* Estado actual — misma fila que ubicación */}
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">Estado Actual</div>
+                      <div className="mt-1">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(selectedMantenimiento.estado)}`}>
+                          {labelEstado(selectedMantenimiento.estado)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Cambiar estado — ocupa las 2 columnas, al final */}
+                    <div className="col-span-2 pt-2 border-t border-gray-100">
+                      <div className="text-xs text-gray-500 uppercase font-semibold mb-2">Cambiar Estado</div>
+                      <CambiarEstado
+                        mantenimiento={selectedMantenimiento}
+                        onActualizado={(nuevoEstado: string) => {
+                          setSelectedMantenimiento((prev) =>
+                            prev ? { ...prev, estado: nuevoEstado } : prev
+                          );
+                          useMantenimientoStore.getState().refrescar();
+                        }}
+                      />
+                    </div>
+
                   </div>
                 </div>
-              </div>
+                </div>
 
+              {/* Botón Cerrar */}
               <div className="mt-6 flex justify-end">
                 <button onClick={() => setMostrarDetalle(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Cerrar</button>
               </div>
