@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  X, Hash, MapPin, Calendar, Search,
+  X,Calendar, Search,
   ChevronDown, Package, FileText, User, Tag
 } from "lucide-react";
 import { useMantenimientoStore } from "@/store/mantenimientoStore";
@@ -97,6 +97,7 @@ export const NuevoMantenimiento = ({ isOpen, onClose }: NuevoMantenimientoProps)
         }),
       });
 
+      // Maneja errores de respuesta
       if (!res.ok) {
         let mensaje = "Error al guardar el mantenimiento";
         try {

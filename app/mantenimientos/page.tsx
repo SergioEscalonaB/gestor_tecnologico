@@ -29,9 +29,11 @@ export default function Mantenimientos() {
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(false);
+  // Para lo del seleccionador (lo que selecciona el mantenimiento)
   const [selectedMantenimiento, setSelectedMantenimiento] = useState<Mantenimiento | null>(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
+  // Para lo del nuevo usuario
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
   const actualizar = useMantenimientoStore((state) => state.actualizar);
 

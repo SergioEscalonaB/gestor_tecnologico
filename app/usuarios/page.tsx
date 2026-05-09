@@ -10,8 +10,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { Empleado } from "@/tipos/empleado";
+import { useUsuarioStore } from "@/store/usuarioStore";
+import { NuevoUsuario } from "@/components/usuarios/NuevoUsuario";
 
-const ITEMP_POR_PAGINA = 8;
+const ITEMS_POR_PAGINA = 8;
 
 // Componente de la página de usuarios
 export default function Usuarios() {
@@ -22,6 +24,10 @@ export default function Usuarios() {
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(true);
+
+  // Para lo del nuevo usuario
+  const [mostrarNuevo, setMostrarNuevo] = useState(false);
+  const actualizar = useUsuarioStore(state => state.actualizar);
   
   // Carga empleados desde la API
   useEffect(() => {
@@ -32,7 +38,7 @@ export default function Usuarios() {
       setEmpleados(data);
       setCargando(false);
     });
-  }, []);
+  }, [actualizar]); // Para recargar la lista cuando se actualice el store
 
   // Reinicia la página actual al cambiar búsqueda o filtros
   useEffect(() => {
@@ -59,10 +65,9 @@ export default function Usuarios() {
   });
 
   // Paginación
-  const totalPaginas = Math.ceil(empleadosFiltrados.length / ITEMP_POR_PAGINA);
-  const inicio = (paginaActual - 1) * ITEMP_POR_PAGINA;
-  const fin = inicio + ITEMP_POR_PAGINA;
-  const empleadosPaginados = empleadosFiltrados.slice(inicio, inicio + ITEMP_POR_PAGINA);
+  const totalPaginas = Math.ceil(empleadosFiltrados.length / ITEMS_POR_PAGINA);
+  const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
+  const empleadosPaginados = empleadosFiltrados.slice(inicio, inicio + ITEMS_POR_PAGINA);
   
 
   // Obteniendo cargos y áreas únicos dinámicamente de los datos de empleados
@@ -71,6 +76,7 @@ export default function Usuarios() {
     return Array.from(new Set(cargos)).sort();
   }, [empleados]);
 
+  // Obtener áreas únicas
   const areasUnicas = useMemo(() => {
     const areas = empleados.map(e => e.area).filter(Boolean);
     return Array.from(new Set(areas)).sort();
@@ -87,7 +93,7 @@ export default function Usuarios() {
           <span className="text-blue-600 font-medium">Usuarios</span>
         </div>
       </div>
-      {/* Tarjeta principal */}
+      {/* Contenido principal */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
         {/* Barra de búsqueda y filtros */}
@@ -117,12 +123,15 @@ export default function Usuarios() {
               >
                 <Filter size={18} />
                 <span>Filtros</span>
-                {/* Punto indicador si hay filtros activos */}
                 {(filtroCargo || filtroArea) && (
                   <span className="w-2 h-2 rounded-full bg-blue-600" />
                 )}
               </button>
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
+
+              {/* Boton nuevo usuaruo */}
+              <button 
+              onClick={() => setMostrarNuevo(true)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
                 <Plus size={20} />
                 <span>Nuevo Usuario</span>
               </button>
@@ -220,8 +229,13 @@ export default function Usuarios() {
       {/* Paginación */}
       <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          Mostrando <span className="font-medium">{inicio + 1}</span> a <span className="font-medium">{Math.min(fin, empleadosFiltrados.length)}</span> de <span className="font-medium">{empleadosFiltrados.length}</span> resultados
-        </p>
+            Mostrando{" "}
+            <span className="font-semibold text-gray-900">{Math.min(inicio + 1, empleadosFiltrados.length)}</span>
+            {" "}a{" "}
+            <span className="font-semibold text-gray-900">{Math.min(inicio + ITEMS_POR_PAGINA, empleadosFiltrados.length)}</span>
+            {" "}de{" "}
+            <span className="font-semibold text-gray-900">{empleadosFiltrados.length}</span> registros
+          </p>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
@@ -245,6 +259,7 @@ export default function Usuarios() {
               </button>
             ))}
           </div>
+
           <button
             onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
             disabled={paginaActual === totalPaginas}
@@ -254,6 +269,12 @@ export default function Usuarios() {
           </button>
         </div>
       </div>
+
+      {/* Modal Nuevo Usuario */}
+      <NuevoUsuario
+        isOpen={mostrarNuevo}
+        onClose={() => setMostrarNuevo(false)}
+      />
     </div>
   </div>
 );
