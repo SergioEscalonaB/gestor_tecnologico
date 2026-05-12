@@ -31,6 +31,10 @@ export async function POST(req: Request) {
       valor_compra : valor_compra ?? null, 
       proveedor : proveedor ?? null, 
       empleadoResponsableId : empleadoResponsableId ?? null
+    },
+    // Para que traiga al empleado responsable
+    include: {
+      empleadoResponsable: true
     }
   });
   return Response.json(activo, { status: 201 });

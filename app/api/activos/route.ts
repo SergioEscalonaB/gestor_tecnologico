@@ -16,6 +16,10 @@ export async function GET(req: Request) {
       ...(categoria   ? { categoria }   : {}),
       ...(estado ? { estado } : {}),
     },
+    // Para que traiga al empleado responsable
+    include: {
+      empleadoResponsable: true
+    },
     orderBy: { nombre: "asc" }
   });
 

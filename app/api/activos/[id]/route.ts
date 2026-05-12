@@ -54,6 +54,10 @@ export async function PUT(
       valor_compra : valor_compra ?? null,
       proveedor : proveedor ?? null,
       empleadoResponsableId: empleadoResponsableId ?? null
+    },
+    // Para que traiga al empleado responsable
+    include: {
+      empleadoResponsable: true
     }
   });
 
