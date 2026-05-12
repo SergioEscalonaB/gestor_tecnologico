@@ -16,10 +16,10 @@ export async function GET() {
 // Crear nuevo empleado
 export async function POST(req: Request) {
   const body = await req.json();
-  const { nombre, cargo, area, correo_electronico } = body;
+  const { cedula, nombre, cargo, area, correo_electronico } = body;
 
   // Validación básica
-  if (!nombre || !cargo || !area || !correo_electronico) {
+  if (!cedula || !nombre || !cargo || !area || !correo_electronico) {
     return Response.json(
       { error: "Todos los campos son obligatorios" },
       { status: 400 }
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   
    // Crear nuevo empleado en la base de datos
   const empleado = await prisma.employee.create({
-    data: { nombre, cargo, area, correo_electronico }
+    data: { cedula: parseInt(cedula), nombre, cargo, area, correo_electronico }
   });
 
   return Response.json(empleado, { status: 201 });

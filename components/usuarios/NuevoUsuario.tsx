@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import {
-  X, User, Mail, Briefcase, MapPin
+  X, User, Mail, Briefcase, MapPin, Hash
 } from "lucide-react";
 import { useUsuarioStore } from "@/store/usuarioStore";
 import { Empleado } from "@/tipos/empleado";
@@ -18,6 +18,7 @@ export const NuevoUsuario = ({isOpen, onClose}: NuevoUsuarioProps) => {
     const refrescar = useUsuarioStore(state => state.refrescar);
     
     // Campos del formulario
+    const [cedula, setCedula] = useState('');
     const [nombre, setNombre] = useState('');
     const [correo, setCorreo] = useState('');
     const [cargo, setCargo] = useState('');
@@ -28,6 +29,7 @@ export const NuevoUsuario = ({isOpen, onClose}: NuevoUsuarioProps) => {
 
     // Limpiar el formulario
     function limpiarFormulario(){
+        setCedula('');
         setNombre('');
         setCorreo('');
         setCargo('');
@@ -43,7 +45,7 @@ export const NuevoUsuario = ({isOpen, onClose}: NuevoUsuarioProps) => {
 
     // Guardar al usuario
     async function handleGuardar(){
-        if(!nombre || !correo || !cargo || !area) {
+        if(!cedula || !nombre || !correo || !cargo || !area) {
             setError("Por favor complete todos los campos");
             return;
         }
@@ -58,6 +60,7 @@ export const NuevoUsuario = ({isOpen, onClose}: NuevoUsuarioProps) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
+                    cedula,
                     nombre,
                     correo_electronico: correo,
                     cargo,
@@ -121,6 +124,21 @@ export const NuevoUsuario = ({isOpen, onClose}: NuevoUsuarioProps) => {
 
             {/* Columna 1 */}
             <div className="space-y-6">
+
+              {/* Cédula */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider ml-1">Cédula *</label>
+                <div className="relative group">
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors" size={18} />
+                  <input
+                    type="number"
+                    placeholder="Ej. 1234567890"
+                    value={cedula}
+                    onChange={(e) => setCedula(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none text-sm transition-all"
+                  />
+                </div>
+              </div>
 
               {/* Nombre Completo */}
               <div className="space-y-1.5">

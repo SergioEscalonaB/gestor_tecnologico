@@ -32,11 +32,11 @@ export async function PUT(
   const idNumber = parseInt(id);
   
   const body = await req.json();
-  const { nombre, cargo, area, correo_electronico } = body;
+  const { cedula, nombre, cargo, area, correo_electronico } = body;
 
   const empleado = await prisma.employee.update({
     where: { id: idNumber },
-    data: { nombre, cargo, area, correo_electronico }
+    data: { cedula: parseInt(cedula), nombre, cargo, area, correo_electronico }
   });
 
   return Response.json(empleado);

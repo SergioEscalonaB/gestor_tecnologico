@@ -196,6 +196,7 @@ export default function Usuarios() {
           <thead>
               <tr className="bg-gray-50/50">
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Cedula</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Cargo</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Área</th>
@@ -215,6 +216,7 @@ export default function Usuarios() {
                 empleadosPaginados.map((empleado) => (
                   <tr key={empleado.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{empleado.cedula}</td>
                     <td className="px-6 py-4 text-sm text-gray-700 font-medium">{empleado.nombre}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.cargo}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.area}</td>

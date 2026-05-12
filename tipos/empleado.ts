@@ -1,5 +1,6 @@
 export type Empleado = {
   id: number;
+  cedula: number;
   nombre: string;
   cargo: string;
   area: string;

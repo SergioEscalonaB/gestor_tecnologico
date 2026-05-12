@@ -12,6 +12,7 @@ datasource db {
 // Modelo EMPLEADO
 model Employee {
   id                 Int          @id @default(autoincrement())
+  cedula             Int          @unique
   nombre             String
   cargo              String
   area               String
