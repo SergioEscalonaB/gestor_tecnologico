@@ -18,26 +18,43 @@ export async function POST(req: Request) {
     );
   }
 
-  const activo = await prisma.asset.create({
-    data: {
-      nombre, 
-      categoria, 
-      marca, 
-      modelo,
-      numero_serie, 
-      estado, 
-      ubicacion : ubicacion ?? null, 
-      fecha_compra: new Date(fecha_compra),
-      valor_compra : valor_compra ?? null, 
-      proveedor : proveedor ?? null, 
-      empleadoResponsableId : empleadoResponsableId ?? null
-    },
-    // Para que traiga al empleado responsable
-    include: {
-      empleadoResponsable: true
-    }
-  });
-  return Response.json(activo, { status: 201 });
+    // Usamos una transacción para asegurar que si hay un responsable, se cree la asignación
+    const activo = await prisma.$transaction(async (tx) => {
+      const nuevoActivo = await tx.asset.create({
+        data: {
+          nombre, 
+          categoria, 
+          marca, 
+          modelo,
+          numero_serie, 
+          estado, 
+          ubicacion : ubicacion ?? null, 
+          fecha_compra: new Date(fecha_compra),
+          valor_compra : valor_compra ?? null, 
+          proveedor : proveedor ?? null, 
+          empleadoResponsableId : empleadoResponsableId ?? null
+        },
+        // Para que traiga al empleado responsable
+        include: {
+          empleadoResponsable: true
+        }
+      });
+
+      // Si se asignó un responsable de inmediato, creamos el registro de asignación
+      if (empleadoResponsableId) {
+        await tx.assignment.create({
+          data: {
+            activoId: nuevoActivo.id,
+            empleadoId: empleadoResponsableId,
+            fecha_inicio: new Date()
+          }
+        });
+      }
+
+      return nuevoActivo;
+    });
+
+    return Response.json(activo, { status: 201 });
 
   } catch (error) {
     console.error("Error al crear activo:", error);

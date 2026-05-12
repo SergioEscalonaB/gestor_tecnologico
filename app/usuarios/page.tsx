@@ -36,19 +36,17 @@ export default function Usuarios() {
   // Para lo del seleccionador (lo que selecciona el empleadp)
   const [selectedEmpleado, setSelectedEmpleado] = useState<Empleado | null>(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
-  const [asignaciones, setAsignaciones] = useState<any[]>([]);
+  const [detalleEmpleado, setDetalleEmpleado] = useState<any>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
-  // Carga las asignaciones del empleado seleccionado cuando se abre el detalle
+  // Carga los datos completos del empleado cuando se abre el detalle
   useEffect(() => {
     if (mostrarDetalle && selectedEmpleado) {
       setCargandoDetalle(true);
-      fetch("/api/asignaciones")
+      fetch(`/api/empleados/${selectedEmpleado.id}`)
         .then((res) => res.json())
         .then((data) => {
-          // Filtramos las asignaciones para este empleado
-          const filtradas = data.filter((a: any) => a.empleadoId === selectedEmpleado.id);
-          setAsignaciones(filtradas);
+          setDetalleEmpleado(data);
           setCargandoDetalle(false);
         })
         .catch(() => setCargandoDetalle(false));
@@ -327,9 +325,11 @@ export default function Usuarios() {
                 <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                   {/* Avatar y Datos Básicos */}
                   <div className="flex flex-col items-center md:items-start gap-4">
+                    {/* 
                     <div className="w-24 h-24 bg-gradient-to-br from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden border-4 border-white">
                       {selectedEmpleado.nombre.charAt(0)}
-                    </div>
+                    </div>*/}
+
                     <div className="text-center md:text-left">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 mb-2 uppercase">
                         Activo
@@ -387,40 +387,39 @@ export default function Usuarios() {
                         <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Código</th>
                         <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Activo</th>
                         <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Estado</th>
-                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Tiempo de Uso</th>
+                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Fecha de Asignación</th>
                         <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px] text-right">Historial</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {cargandoDetalle ? (
                         <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">Cargando equipos...</td></tr>
-                      ) : asignaciones.filter(a => !a.fecha_fin).length === 0 ? (
+                      ) : !detalleEmpleado?.activosResponsable || detalleEmpleado.activosResponsable.filter((a: any) => a.estado === 'en_uso' || a.estado === 'mantenimiento').length === 0 ? (
                         <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">No hay equipos asignados actualmente</td></tr>
                       ) : (
-                        asignaciones.filter(a => !a.fecha_fin).map((asig) => (
-                          <tr key={asig.id} className="hover:bg-blue-50/20 transition-colors">
-                            <td className="px-6 py-4 font-mono text-xs text-blue-600 font-semibold">{asig.activo?.numero_serie}</td>
+                        detalleEmpleado.activosResponsable.filter((a: any) => a.estado === 'en_uso' || a.estado === 'mantenimiento').map((activo: any) => (
+                          <tr key={activo.id} className="hover:bg-blue-50/20 transition-colors">
+                            <td className="px-6 py-4 font-mono text-xs text-blue-600 font-semibold">{activo.numero_serie}</td>
                             <td className="px-6 py-4">
-                              <p className="font-bold text-gray-900">{asig.activo?.nombre}</p>
-                              <p className="text-[10px] text-gray-500">{asig.activo?.marca} {asig.activo?.modelo}</p>
+                              <p className="font-bold text-gray-900">{activo.nombre}</p>
+                              <p className="text-[10px] text-gray-500">{activo.marca} {activo.modelo}</p>
                             </td>
                             <td className="px-6 py-4">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                                asig.activo?.estado === 'disponible' ? 'bg-green-100 text-green-700' :
-                                asig.activo?.estado === 'en_uso' ? 'bg-blue-100 text-blue-700' :
+                                activo.estado === 'disponible' ? 'bg-green-100 text-green-700' :
+                                activo.estado === 'en_uso' ? 'bg-blue-100 text-blue-700' :
                                 'bg-orange-100 text-orange-700'
                               }`}>
-                                {asig.activo?.estado === 'en_uso' ? 'En uso' : asig.activo?.estado}
+                                {activo.estado === 'en_uso' ? 'En uso' : activo.estado === 'mantenimiento' ? 'Mantenimiento' : activo.estado}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-xs text-gray-600">
-                              {/* DEbo corregir lo de la fecha de hoy */}
                               <div className="flex items-center gap-1.5">
                                 <Clock size={12} className="text-gray-400" />
-                                {new Date(asig.fecha_inicio).toLocaleDateString('es-ES')} (Hoy)
+                                {new Date(activo.fecha_compra).toLocaleDateString('es-ES')}
                               </div>
                             </td>
-                            {/* DEbo corregir lol boton del historial cuando lo tenga en activo*/}
+                            {/* Boton para ver historial de asignaciones*/}
                             <td className="px-6 py-4 text-right">
                               <button className="text-blue-600 hover:text-blue-800 font-bold text-[10px] flex items-center gap-1 justify-end ml-auto">
                                 <Eye size={12} />
@@ -445,10 +444,10 @@ export default function Usuarios() {
                 <div className="space-y-6 relative before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100 ml-2">
                   {cargandoDetalle ? (
                     <p className="pl-8 text-sm text-gray-400 italic">Cargando historial...</p>
-                  ) : asignaciones.length === 0 ? (
+                  ) : !detalleEmpleado?.asignaciones || detalleEmpleado.asignaciones.length === 0 ? (
                     <p className="pl-8 text-sm text-gray-400 italic">Sin historial registrado</p>
                   ) : (
-                    asignaciones.map((asig) => (
+                    detalleEmpleado.asignaciones.map((asig: any) => (
                       <div key={asig.id} className="relative pl-8">
                         <div className="absolute left-0 top-1.5 w-5 h-5 bg-white border-2 border-blue-500 rounded-full z-10 shadow-sm" />
                         <div className="bg-gray-50/50 rounded-2xl p-4 border border-gray-100 hover:border-blue-200 transition-all hover:bg-white hover:shadow-md group">
@@ -467,8 +466,8 @@ export default function Usuarios() {
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
                             {asig.fecha_fin 
-                              ? `Asignación completada. Activo devuelto.` 
-                              : `Asignación inicial de ${asig.activo?.nombre} a ${selectedEmpleado.nombre}.`}
+                              ? `Asignación completada. Activo devuelto / Reasignado.` 
+                              : `Asignación activa de ${asig.activo?.nombre} a ${selectedEmpleado.nombre}.`}
                           </p>
                         </div>
                       </div>

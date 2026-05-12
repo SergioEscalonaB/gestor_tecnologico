@@ -13,7 +13,15 @@ export async function GET(
   const idNumber = parseInt(id);
 
   const empleado = await prisma.employee.findUnique({
-    where: { id: idNumber }
+    where: { id: idNumber },
+    include: {
+      // Obtenemos todos los activos asignados al empleado, tanto activos como desasignados
+      activosResponsable: true,
+      asignaciones: {
+        include: { activo: true },
+        orderBy: { fecha_inicio: "desc" }
+      }
+    }
   });
 
   if (!empleado) {

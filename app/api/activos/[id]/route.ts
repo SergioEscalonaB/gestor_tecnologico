@@ -44,21 +44,58 @@ export async function PUT(
     estado, ubicacion, fecha_compra, valor_compra,
     proveedor, empleadoResponsableId } = body;
 
-  const activo = await prisma.asset.update({
-    where: { id: idNumber },
-    data: {
-      nombre, categoria, marca, modelo,
-      numero_serie, estado, 
-      ubicacion : ubicacion ?? null, // Permitir nulo si no se proporciona ubicación
-      fecha_compra: new Date(fecha_compra),
-      valor_compra : valor_compra ?? null,
-      proveedor : proveedor ?? null,
-      empleadoResponsableId: empleadoResponsableId ?? null
-    },
-    // Para que traiga al empleado responsable
-    include: {
-      empleadoResponsable: true
+  // Realizamos la actualización en una transacción para mantener la coherencia con el historial de asignaciones
+  const activo = await prisma.$transaction(async (tx) => {
+    // 1. Obtener el estado actual del activo antes de actualizar
+    const oldActivo = await tx.asset.findUnique({
+      where: { id: idNumber },
+      select: { empleadoResponsableId: true }
+    });
+
+    // 2. Actualizar el activo
+    const updated = await tx.asset.update({
+      where: { id: idNumber },
+      data: {
+        nombre, categoria, marca, modelo,
+        numero_serie, estado, 
+        ubicacion : ubicacion ?? null,
+        fecha_compra: new Date(fecha_compra),
+        valor_compra : valor_compra ?? null,
+        proveedor : proveedor ?? null,
+        empleadoResponsableId: empleadoResponsableId ?? null
+      },
+      include: {
+        empleadoResponsable: true
+      }
+    });
+
+    // 3. Si el responsable ha cambiado, gestionar el historial de asignaciones
+    if (oldActivo?.empleadoResponsableId !== empleadoResponsableId) {
+      // Cerrar la asignación anterior si existía
+      if (oldActivo?.empleadoResponsableId) {
+        await tx.assignment.updateMany({
+          where: { 
+            activoId: idNumber, 
+            empleadoId: oldActivo.empleadoResponsableId, 
+            fecha_fin: null 
+          },
+          data: { fecha_fin: new Date() }
+        });
+      }
+
+      // Crear la nueva asignación si hay un nuevo responsable
+      if (empleadoResponsableId) {
+        await tx.assignment.create({
+          data: { 
+            activoId: idNumber, 
+            empleadoId: empleadoResponsableId,
+            fecha_inicio: new Date()
+          }
+        });
+      }
     }
+
+    return updated;
   });
 
   return Response.json(activo);
