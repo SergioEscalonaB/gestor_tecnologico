@@ -53,6 +53,18 @@ export default function Usuarios() {
     }
   }, [mostrarDetalle, selectedEmpleado]);
 
+  // Bloquea el scroll del fondo mientras el modal de detalle esta abierto.
+  useEffect(() => {
+    if (!mostrarDetalle) return;
+
+    const overflowOriginal = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = overflowOriginal;
+    };
+  }, [mostrarDetalle]);
+
   // Para lo del nuevo usuario
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
   const actualizar = useUsuarioStore(state => state.actualizar);
@@ -279,9 +291,9 @@ export default function Usuarios() {
 
       {/* Superposicion de detalle */}
       {mostrarDetalle && selectedEmpleado && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 sm:p-4 md:p-6">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMostrarDetalle(false)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col z-10 animate-in fade-in zoom-in duration-200">
+          <div className="relative z-10 my-2 sm:my-4 md:my-6 flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl animate-in fade-in zoom-in duration-200">
             
             {/* Header principal */}
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-20">
@@ -307,7 +319,7 @@ export default function Usuarios() {
             </div>
 
             {/* Contenido Scrolleable */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 custom-scrollbar">
               
               {/* Parte 1:Información del Usuario */}
               <section className="space-y-4">
