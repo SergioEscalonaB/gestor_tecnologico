@@ -10,6 +10,13 @@ import {
   Trash2,
   Eye,
   X,
+  User,
+  Building2,
+  MapPin,
+  Mail,
+  Pencil,
+  Clock,
+  History,
 } from "lucide-react";
 import { Empleado } from "@/tipos/empleado";
 import { useUsuarioStore } from "@/store/usuarioStore";
@@ -29,6 +36,24 @@ export default function Usuarios() {
   // Para lo del seleccionador (lo que selecciona el empleadp)
   const [selectedEmpleado, setSelectedEmpleado] = useState<Empleado | null>(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
+  const [asignaciones, setAsignaciones] = useState<any[]>([]);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  // Carga las asignaciones del empleado seleccionado cuando se abre el detalle
+  useEffect(() => {
+    if (mostrarDetalle && selectedEmpleado) {
+      setCargandoDetalle(true);
+      fetch("/api/asignaciones")
+        .then((res) => res.json())
+        .then((data) => {
+          // Filtramos las asignaciones para este empleado
+          const filtradas = data.filter((a: any) => a.empleadoId === selectedEmpleado.id);
+          setAsignaciones(filtradas);
+          setCargandoDetalle(false);
+        })
+        .catch(() => setCargandoDetalle(false));
+    }
+  }, [mostrarDetalle, selectedEmpleado]);
 
   // Para lo del nuevo usuario
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
@@ -256,21 +281,215 @@ export default function Usuarios() {
 
       {/* Superposicion de detalle */}
       {mostrarDetalle && selectedEmpleado && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={() => {setMostrarDetalle(false)}} />
-            <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 z-10">
-              {/* Header de detalle */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-800">Detalle del Usuario</h3>
-                <button
-                  onClick={() => setMostrarDetalle(false)}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700"
-                >
-                  <X size={20} />
-                </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMostrarDetalle(false)} />
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col z-10 animate-in fade-in zoom-in duration-200">
+            
+            {/* Header principal */}
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-20">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
+                  <User size={24} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 leading-tight">Detalle del Usuario: {selectedEmpleado.nombre}</h3>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                    <span className="font-medium text-blue-600">ID #{selectedEmpleado.id}</span>
+                    <span>•</span>
+                    <span>{selectedEmpleado.cargo}</span>
+                  </div>
+                </div>
               </div>
+              <button
+                onClick={() => setMostrarDetalle(false)}
+                className="p-2.5 hover:bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 transition-all active:scale-95"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Contenido Scrolleable */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+              
+              {/* Parte 1:Información del Usuario */}
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Información del Usuario</h4>
+                  </div>
+                  <button className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 text-gray-600 text-xs font-bold rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                    <Pencil size={14} />
+                    Editar Usuario
+                  </button>
+                </div>
+
+                <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Avatar y Datos Básicos */}
+                  <div className="flex flex-col items-center md:items-start gap-4">
+                    <div className="w-24 h-24 bg-gradient-to-br from-gray-200 to-gray-300 rounded-3xl flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden border-4 border-white">
+                      {selectedEmpleado.nombre.charAt(0)}
+                    </div>
+                    <div className="text-center md:text-left">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 mb-2 uppercase">
+                        Activo
+                      </span>
+                      <p className="text-sm font-semibold text-gray-900">{selectedEmpleado.nombre}</p>
+                      <p className="text-xs text-gray-500">{selectedEmpleado.correo_electronico}</p>
+                    </div>
+                  </div>
+
+                  {/* Detalles Laborales */}
+                  <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                        <Building2 size={14} />
+                        Departamento
+                      </div>
+                      <p className="text-gray-700 font-medium">{selectedEmpleado.area}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                        <User size={14} />
+                        Cargo / Rol
+                      </div>
+                      <p className="text-gray-700 font-medium">{selectedEmpleado.cargo}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                        <MapPin size={14} />
+                        Ubicación
+                      </div>
+                      <p className="text-gray-700 font-medium">{selectedEmpleado.area} - Sede Principal</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                        <Mail size={14} />
+                        Email Corporativo
+                      </div>
+                      <p className="text-gray-700 font-medium break-all">{selectedEmpleado.correo_electronico}</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Parte 2: Equipos Asignados */}
+              <section className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-5 bg-emerald-500 rounded-full"></div>
+                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Equipos Asignados y Uso Actual</h4>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50/50 border-b border-gray-100">
+                      <tr>
+                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Código</th>
+                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Activo</th>
+                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Estado</th>
+                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Tiempo de Uso</th>
+                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px] text-right">Historial</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {cargandoDetalle ? (
+                        <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">Cargando equipos...</td></tr>
+                      ) : asignaciones.filter(a => !a.fecha_fin).length === 0 ? (
+                        <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">No hay equipos asignados actualmente</td></tr>
+                      ) : (
+                        asignaciones.filter(a => !a.fecha_fin).map((asig) => (
+                          <tr key={asig.id} className="hover:bg-blue-50/20 transition-colors">
+                            <td className="px-6 py-4 font-mono text-xs text-blue-600 font-semibold">{asig.activo?.numero_serie}</td>
+                            <td className="px-6 py-4">
+                              <p className="font-bold text-gray-900">{asig.activo?.nombre}</p>
+                              <p className="text-[10px] text-gray-500">{asig.activo?.marca} {asig.activo?.modelo}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                asig.activo?.estado === 'disponible' ? 'bg-green-100 text-green-700' :
+                                asig.activo?.estado === 'en_uso' ? 'bg-blue-100 text-blue-700' :
+                                'bg-orange-100 text-orange-700'
+                              }`}>
+                                {asig.activo?.estado === 'en_uso' ? 'En uso' : asig.activo?.estado}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-xs text-gray-600">
+                              {/* DEbo corregir lo de la fecha de hoy */}
+                              <div className="flex items-center gap-1.5">
+                                <Clock size={12} className="text-gray-400" />
+                                {new Date(asig.fecha_inicio).toLocaleDateString('es-ES')} (Hoy)
+                              </div>
+                            </td>
+                            {/* DEbo corregir lol boton del historial cuando lo tenga en activo*/}
+                            <td className="px-6 py-4 text-right">
+                              <button className="text-blue-600 hover:text-blue-800 font-bold text-[10px] flex items-center gap-1 justify-end ml-auto">
+                                <Eye size={12} />
+                                Ver Historial
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* Parte 3: Historial de Asignaciones */}
+              <section className="space-y-4 pb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-5 bg-purple-500 rounded-full"></div>
+                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Historial de Asignaciones</h4>
+                </div>
+
+                <div className="space-y-6 relative before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100 ml-2">
+                  {cargandoDetalle ? (
+                    <p className="pl-8 text-sm text-gray-400 italic">Cargando historial...</p>
+                  ) : asignaciones.length === 0 ? (
+                    <p className="pl-8 text-sm text-gray-400 italic">Sin historial registrado</p>
+                  ) : (
+                    asignaciones.map((asig) => (
+                      <div key={asig.id} className="relative pl-8">
+                        <div className="absolute left-0 top-1.5 w-5 h-5 bg-white border-2 border-blue-500 rounded-full z-10 shadow-sm" />
+                        <div className="bg-gray-50/50 rounded-2xl p-4 border border-gray-100 hover:border-blue-200 transition-all hover:bg-white hover:shadow-md group">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-bold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
+                              {new Date(asig.fecha_inicio).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
+                            </span>
+                            {asig.fecha_fin && (
+                              <span className="text-[10px] font-medium text-gray-400 italic">
+                                Finalizado en {new Date(asig.fecha_fin).toLocaleDateString('es-ES')}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
+                            {asig.activo?.nombre} <span className="text-gray-400 font-normal">({asig.activo?.marca} {asig.activo?.modelo})</span>
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {asig.fecha_fin 
+                              ? `Asignación completada. Activo devuelto.` 
+                              : `Asignación inicial de ${asig.activo?.nombre} a ${selectedEmpleado.nombre}.`}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+
+            </div>
+
+            {/* Footer del Modal */}
+            <div className="p-6 border-t border-gray-100 flex justify-end bg-white">
+              <button
+                onClick={() => setMostrarDetalle(false)}
+                className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200"
+              >
+                Cerrar Detalle
+              </button>
             </div>
           </div>
+        </div>
       )}
       
       {/* Paginación */}
