@@ -8,6 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  Eye,
+  X,
 } from "lucide-react";
 import { Empleado } from "@/tipos/empleado";
 import { useUsuarioStore } from "@/store/usuarioStore";
@@ -24,11 +26,14 @@ export default function Usuarios() {
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(true);
+  // Para lo del seleccionador (lo que selecciona el empleadp)
+  const [selectedEmpleado, setSelectedEmpleado] = useState<Empleado | null>(null);
+  const [mostrarDetalle, setMostrarDetalle] = useState(false);
 
   // Para lo del nuevo usuario
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
   const actualizar = useUsuarioStore(state => state.actualizar);
-  
+
   // Carga empleados desde la API
   useEffect(() => {
     setCargando(true);
@@ -214,13 +219,34 @@ export default function Usuarios() {
                 </tr>
               ) : (
                 empleadosPaginados.map((empleado) => (
-                  <tr key={empleado.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={empleado.id} onClick={() => {
+                    //Seleccionar / deseleccionar fila
+                    setSelectedEmpleado((prev) => prev?.id === empleado.id ? null : empleado);
+                    setMostrarDetalle(false);
+                  }}
+                  className={`hover:bg-gray-50/50 transition-colors ${selectedEmpleado?.id === empleado.id ? "bg-blue-50" : ""}`}
+                >
+                  {/* -- */}
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.cedula}</td>
                     <td className="px-6 py-4 text-sm text-gray-700 font-medium">{empleado.nombre}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.cargo}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.area}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 text-center">{empleado.correo_electronico}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      <div className="flex items-center justify-end gap-3">
+                        <span>{empleado.correo_electronico ?? "- -"}</span>
+                        {/* Botón ojo que aparece cuando la fila está seleccionada */}
+                        {selectedEmpleado?.id === empleado.id && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMostrarDetalle(true); }}
+                            aria-label="Ver detalle"
+                            className="p-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors"
+                          >
+                            <Eye size={18} />
+                          </button>
+                          )}
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) }
@@ -228,6 +254,25 @@ export default function Usuarios() {
         </table>
       </div>
 
+      {/* Superposicion de detalle */}
+      {mostrarDetalle && selectedEmpleado && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={() => {setMostrarDetalle(false)}} />
+            <div className="relative bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 z-10">
+              {/* Header de detalle */}
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800">Detalle del Usuario</h3>
+                <button
+                  onClick={() => setMostrarDetalle(false)}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+      )}
+      
       {/* Paginación */}
       <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
         <p className="text-sm text-gray-500">

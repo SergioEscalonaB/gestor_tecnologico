@@ -28,6 +28,13 @@ export default function Activos() {
 
   const [modoEdicion, setModoEdicion] = useState(false);
 
+    // Resetear modo edicion al cerrar el detalle
+  useEffect(() => {
+    if (!mostrarDetalle) {
+      setModoEdicion(false);
+    }
+  }, [mostrarDetalle]);
+  
   // Carga activos desde la API
   useEffect(() => {
     setCargando(true);

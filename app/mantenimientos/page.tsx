@@ -7,7 +7,6 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  Trash2,
   Eye,
   X,
 } from "lucide-react";
@@ -38,6 +37,13 @@ export default function Mantenimientos() {
   const actualizar = useMantenimientoStore((state) => state.actualizar);
 
   const [modoEdicion, setModoEdicion] = useState(false);
+
+  // Resetear modo edicion al cerrar el detalle
+  useEffect(() => {
+    if (!mostrarDetalle) {
+      setModoEdicion(false);
+    }
+  }, [mostrarDetalle]);
 
 
   // Cargar mantenimientos desde la API
@@ -283,11 +289,13 @@ export default function Mantenimientos() {
                     <td className="px-6 py-4 text-sm text-gray-900">
                       {new Date(mantenimiento.fecha_programada).toLocaleDateString('es-ES')}
                     </td>
+                    
                     <td className="px-6 py-4 text-sm text-center">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colorEstado(mantenimiento.estado)}`}>
                         {labelEstado(mantenimiento.estado)}  
                       </span>
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-900 text-center">
                       <span className="text-xs text-gray-900">
                         {mantenimiento.fecha_finalizacion 
@@ -295,6 +303,7 @@ export default function Mantenimientos() {
                           : "- -"}
                       </span>
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-900 text-center">
                       <div className="flex items-center justify-end gap-3">
                         <span>{mantenimiento.responsable ?? "- -"}</span>
@@ -342,7 +351,7 @@ export default function Mantenimientos() {
                     {modoEdicion ? "Cancelar" : "Editar"}
                   </button>
 
-                  <button onClick={() => { setMostrarDetalle(false); setModoEdicion(false); }} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
+                  <button onClick={() => setMostrarDetalle(false)} className="p-2 rounded-full text-gray-600 hover:bg-gray-100">
                     <X size={18} />
                   </button>
                 </div>
