@@ -292,18 +292,18 @@ export default function Usuarios() {
       {/* Superposicion de detalle */}
       {mostrarDetalle && selectedEmpleado && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 sm:p-4 md:p-6">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMostrarDetalle(false)} />
-          <div className="relative z-10 my-2 sm:my-4 md:my-6 flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMostrarDetalle(false)} />
+          <div className="relative z-10 my-2 sm:my-4 md:my-6 flex h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl animate-in fade-in zoom-in duration-200">
             
             {/* Header principal */}
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-20">
+            <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-20">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
                   <User size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 leading-tight">Detalle del Usuario: {selectedEmpleado.nombre}</h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">Detalle del Usuario: {selectedEmpleado.nombre}</h3>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1 font-medium">
                     <span className="font-medium text-blue-600">ID #{selectedEmpleado.id}</span>
                     <span>•</span>
                     <span>{selectedEmpleado.cargo}</span>
@@ -319,22 +319,22 @@ export default function Usuarios() {
             </div>
 
             {/* Contenido Scrolleable */}
-            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 custom-scrollbar">
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 space-y-6 custom-scrollbar">
               
               {/* Parte 1:Información del Usuario */}
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
-                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Información del Usuario</h4>
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Información del Usuario</h4>
                   </div>
-                  <button className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 text-gray-600 text-xs font-bold rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                  <button className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 text-gray-600 text-xs font-semibold rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                     <Pencil size={14} />
                     Editar Usuario
                   </button>
                 </div>
 
-                <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
                   {/* Avatar y Datos Básicos */}
                   <div className="flex flex-col items-center md:items-start gap-4">
                     {/* 
@@ -343,43 +343,43 @@ export default function Usuarios() {
                     </div>*/}
 
                     <div className="text-center md:text-left">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200 mb-2 uppercase">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 mb-2 uppercase">
                         Activo
                       </span>
-                      <p className="text-sm font-semibold text-gray-900">{selectedEmpleado.nombre}</p>
+                      <p className="text-sm font-medium text-gray-900">{selectedEmpleado.nombre}</p>
                       <p className="text-xs text-gray-500">{selectedEmpleado.correo_electronico}</p>
                     </div>
                   </div>
 
                   {/* Detalles Laborales */}
-                  <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12">
+                  <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase">
                         <Building2 size={14} />
                         Departamento
                       </div>
-                      <p className="text-gray-700 font-medium">{selectedEmpleado.area}</p>
+                      <p className="mt-0.5 text-sm text-gray-800 font-medium">{selectedEmpleado.area}</p>
                     </div>
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase">
                         <User size={14} />
                         Cargo / Rol
                       </div>
-                      <p className="text-gray-700 font-medium">{selectedEmpleado.cargo}</p>
+                      <p className="mt-0.5 text-sm text-gray-800 font-medium">{selectedEmpleado.cargo}</p>
                     </div>
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase">
                         <MapPin size={14} />
                         Ubicación
                       </div>
-                      <p className="text-gray-700 font-medium">{selectedEmpleado.area} - Sede Principal</p>
+                      <p className="mt-0.5 text-sm text-gray-800 font-medium">{selectedEmpleado.area} - Sede Principal</p>
                     </div>
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase">
                         <Mail size={14} />
                         Email Corporativo
                       </div>
-                      <p className="text-gray-700 font-medium break-all">{selectedEmpleado.correo_electronico}</p>
+                      <p className="mt-0.5 text-sm text-gray-800 font-medium break-all">{selectedEmpleado.correo_electronico}</p>
                     </div>
                   </div>
                 </div>
@@ -389,35 +389,35 @@ export default function Usuarios() {
               <section className="space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-5 bg-emerald-500 rounded-full"></div>
-                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Equipos Asignados y Uso Actual</h4>
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Equipos Asignados y Uso Actual</h4>
                 </div>
 
                 <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50/50 border-b border-gray-100">
                       <tr>
-                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Código</th>
-                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Activo</th>
-                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Estado</th>
-                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px]">Fecha de Asignación</th>
-                        <th className="px-6 py-3 font-bold text-gray-500 uppercase text-[10px] text-right">Historial</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Código</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Activo</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha de Asignación</th>
+                        <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Historial</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {cargandoDetalle ? (
-                        <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">Cargando equipos...</td></tr>
+                        <tr><td colSpan={5} className="px-4 py-7 text-center text-gray-400 italic">Cargando equipos...</td></tr>
                       ) : !detalleEmpleado?.activosResponsable || detalleEmpleado.activosResponsable.filter((a: any) => a.estado === 'en_uso' || a.estado === 'mantenimiento').length === 0 ? (
-                        <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">No hay equipos asignados actualmente</td></tr>
+                        <tr><td colSpan={5} className="px-4 py-7 text-center text-gray-400 italic">No hay equipos asignados actualmente</td></tr>
                       ) : (
                         detalleEmpleado.activosResponsable.filter((a: any) => a.estado === 'en_uso' || a.estado === 'mantenimiento').map((activo: any) => (
                           <tr key={activo.id} className="hover:bg-blue-50/20 transition-colors">
-                            <td className="px-6 py-4 font-mono text-xs text-blue-600 font-semibold">{activo.numero_serie}</td>
-                            <td className="px-6 py-4">
-                              <p className="font-bold text-gray-900">{activo.nombre}</p>
-                              <p className="text-[10px] text-gray-500">{activo.marca} {activo.modelo}</p>
+                            <td className="px-4 py-3.5 font-mono text-xs text-blue-600 font-medium">{activo.numero_serie}</td>
+                            <td className="px-4 py-3.5">
+                              <p className="text-sm font-medium text-gray-900">{activo.nombre}</p>
+                              <p className="text-xs text-gray-500">{activo.marca} {activo.modelo}</p>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            <td className="px-4 py-3.5">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold uppercase ${
                                 activo.estado === 'disponible' ? 'bg-green-100 text-green-700' :
                                 activo.estado === 'en_uso' ? 'bg-blue-100 text-blue-700' :
                                 'bg-orange-100 text-orange-700'
@@ -425,15 +425,15 @@ export default function Usuarios() {
                                 {activo.estado === 'en_uso' ? 'En uso' : activo.estado === 'mantenimiento' ? 'Mantenimiento' : activo.estado}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-xs text-gray-600">
+                            <td className="px-4 py-3.5 text-xs text-gray-600">
                               <div className="flex items-center gap-1.5">
                                 <Clock size={12} className="text-gray-400" />
                                 {new Date(activo.fecha_compra).toLocaleDateString('es-ES')}
                               </div>
                             </td>
                             {/* Boton para ver historial de asignaciones*/}
-                            <td className="px-6 py-4 text-right">
-                              <button className="text-blue-600 hover:text-blue-800 font-bold text-[10px] flex items-center gap-1 justify-end ml-auto">
+                            <td className="px-4 py-3.5 text-right">
+                              <button className="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1 justify-end ml-auto">
                                 <Eye size={12} />
                                 Ver Historial
                               </button>
@@ -447,33 +447,33 @@ export default function Usuarios() {
               </section>
 
               {/* Parte 3: Historial de Asignaciones */}
-              <section className="space-y-4 pb-4">
+              <section className="space-y-4 pb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-5 bg-purple-500 rounded-full"></div>
-                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Historial de Asignaciones</h4>
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Historial de Asignaciones</h4>
                 </div>
 
-                <div className="space-y-6 relative before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100 ml-2">
+                <div className="space-y-4 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100 ml-1">
                   {cargandoDetalle ? (
                     <p className="pl-8 text-sm text-gray-400 italic">Cargando historial...</p>
                   ) : !detalleEmpleado?.asignaciones || detalleEmpleado.asignaciones.length === 0 ? (
                     <p className="pl-8 text-sm text-gray-400 italic">Sin historial registrado</p>
                   ) : (
                     detalleEmpleado.asignaciones.map((asig: any) => (
-                      <div key={asig.id} className="relative pl-8">
+                      <div key={asig.id} className="relative pl-7">
                         <div className="absolute left-0 top-1.5 w-5 h-5 bg-white border-2 border-blue-500 rounded-full z-10 shadow-sm" />
                         <div className="bg-gray-50/50 rounded-2xl p-4 border border-gray-100 hover:border-blue-200 transition-all hover:bg-white hover:shadow-md group">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] font-bold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
+                            <span className="text-xs font-semibold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
                               {new Date(asig.fecha_inicio).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
                             </span>
                             {asig.fecha_fin && (
-                              <span className="text-[10px] font-medium text-gray-400 italic">
-                                Finalizado en {new Date(asig.fecha_fin).toLocaleDateString('es-ES')}
+                              <span className="text-xs text-gray-400 italic">
+                                Finalizado el {new Date(asig.fecha_fin).toLocaleDateString('es-ES')}
                               </span>
                             )}
                           </div>
-                          <p className="text-sm font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
+                          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-700 transition-colors">
                             {asig.activo?.nombre} <span className="text-gray-400 font-normal">({asig.activo?.marca} {asig.activo?.modelo})</span>
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
@@ -491,7 +491,7 @@ export default function Usuarios() {
             </div>
 
             {/* Footer del Modal */}
-            <div className="p-6 border-t border-gray-100 flex justify-end bg-white">
+            <div className="p-4 sm:p-5 border-t border-gray-100 flex justify-end bg-white">
               <button
                 onClick={() => setMostrarDetalle(false)}
                 className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200"
