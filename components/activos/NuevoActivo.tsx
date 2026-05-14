@@ -59,7 +59,7 @@ export const NuevoActivo = ({ isOpen, onClose }: NuevoActivoProps) => {
       setEmpleados([]);
       return;
     }
-    fetch("/api/empleados")
+    fetch("/api/empleados?solo_activos=true")
       .then((res) => res.json())
       .then((data: EmpleadoSimple[]) => {
         const filtrados = data.filter((e) =>

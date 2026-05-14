@@ -6,8 +6,12 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 // Obtener todos los empleados
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const soloActivos = searchParams.get("solo_activos") === "true";
+
   const empleados = await prisma.employee.findMany({
+    where: soloActivos ? { activo: true } : {},
     orderBy: { nombre: "asc" }
   });
   return Response.json(empleados);
