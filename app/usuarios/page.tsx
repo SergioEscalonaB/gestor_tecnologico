@@ -40,6 +40,15 @@ export default function Usuarios() {
   const [detalleEmpleado, setDetalleEmpleado] = useState<any>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
+  const [ modoEdicion, setModoEdicion ] = useState(false);
+
+  // Resetear modo edicion al cerrar el detalle
+  useEffect(() => {
+    if(!mostrarDetalle) {
+      setModoEdicion(false);
+    }
+  }, [mostrarDetalle]);
+
   // Carga los datos completos del empleado cuando se abre el detalle
   useEffect(() => {
     if (mostrarDetalle && selectedEmpleado) {
@@ -68,7 +77,6 @@ export default function Usuarios() {
 
   // Para lo del nuevo usuario
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
-  const [editandoUsuario, setEditandoUsuario] = useState(false);
   const actualizar = useUsuarioStore(state => state.actualizar);
 
   // Carga empleados desde la API
@@ -317,7 +325,7 @@ export default function Usuarios() {
               <button
                 onClick={() => {
                   setMostrarDetalle(false);
-                  setEditandoUsuario(false);
+                  setModoEdicion(false);
                 }}
                 className="p-2.5 hover:bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 transition-all active:scale-95"
               >
@@ -338,14 +346,14 @@ export default function Usuarios() {
                   
                   {/* Botón de editar/cancelar */}
                   <button
-                    onClick={() => setEditandoUsuario(!editandoUsuario)}
+                    onClick={() => setModoEdicion(!modoEdicion)}
                     className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                      editandoUsuario 
+                      modoEdicion 
                         ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
                         : "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
                     }`}
                   >
-                    {editandoUsuario ? (
+                    {modoEdicion ? (
                       <>
                         <X size={14} />
                         Cancelar
@@ -360,14 +368,14 @@ export default function Usuarios() {
                 </div>
 
                 {/* Formulario de Edición */}
-                {editandoUsuario && selectedEmpleado ? (
+                {modoEdicion && selectedEmpleado ? (
                   <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 sm:p-5">
                     <EditarUsuario 
                       empleado={selectedEmpleado} 
                       onGuardado={(actualizado) => {
                         setEmpleados(prev => prev.map(e => e.id === actualizado.id ? actualizado : e));
                         setSelectedEmpleado(actualizado);
-                        setEditandoUsuario(false);
+                        setModoEdicion(false);
                       }}
                     />
                   </div>
