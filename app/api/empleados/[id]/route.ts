@@ -4,10 +4,10 @@ import { PrismaClient } from "@prisma/client";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// GET /api/empleados/:id - Obtener un empleado por ID
+// Obtener un empleado por ID
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const idNumber = parseInt(id);
@@ -19,9 +19,9 @@ export async function GET(
       activosResponsable: true,
       asignaciones: {
         include: { activo: true },
-        orderBy: { fecha_inicio: "desc" }
-      }
-    }
+        orderBy: { fecha_inicio: "desc" },
+      },
+    },
   });
 
   if (!empleado) {
@@ -31,35 +31,81 @@ export async function GET(
   return Response.json(empleado);
 }
 
-// PUT /api/empleados/:id - Actualizar un empleado por ID
+// Actualizar un empleado por ID
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params; 
+  const { id } = await params;
   const idNumber = parseInt(id);
-  
+
+  if (Number.isNaN(idNumber)) {
+    return Response.json({ error: "ID de empleado inválido" }, { status: 400 });
+  }
+
   const body = await req.json();
   const { cedula, nombre, cargo, area, correo_electronico } = body;
 
-  const empleado = await prisma.employee.update({
+  if (!nombre || !cargo || !area || !correo_electronico) {
+    return Response.json(
+      { error: "Nombre, cargo, área y correo son obligatorios" },
+      { status: 400 },
+    );
+  }
+
+  const empleadoActual = await prisma.employee.findUnique({
     where: { id: idNumber },
-    data: { cedula: parseInt(cedula), nombre, cargo, area, correo_electronico }
+    select: { cedula: true },
   });
 
-  return Response.json(empleado);
+  if (!empleadoActual) {
+    return Response.json({ error: "Empleado no encontrado" }, { status: 404 });
+  }
+
+  const cedulaNueva =
+    cedula !== undefined && cedula !== null && cedula !== ""
+      ? Number(cedula)
+      : empleadoActual.cedula;
+
+  if (Number.isNaN(cedulaNueva)) {
+    return Response.json(
+      { error: "La cédula debe ser un número válido" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const empleado = await prisma.employee.update({
+      where: { id: idNumber },
+      data: { cedula: cedulaNueva, nombre, cargo, area, correo_electronico },
+    });
+
+    return Response.json(empleado);
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      return Response.json(
+        { error: "La cédula o el correo electrónico ya están registrados" },
+        { status: 409 },
+      );
+    }
+
+    return Response.json(
+      { error: "No se pudo actualizar el empleado" },
+      { status: 500 },
+    );
+  }
 }
 
-// DELETE /api/empleados/:id - Eliminar un empleado por ID
+//  Eliminar un empleado por ID
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const idNumber = parseInt(id);
 
   await prisma.employee.delete({
-    where: { id: idNumber }
+    where: { id: idNumber },
   });
 
   return Response.json({ mensaje: "Empleado eliminado correctamente" });
