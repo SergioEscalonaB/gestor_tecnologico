@@ -17,6 +17,7 @@ model Employee {
   cargo              String
   area               String
   correo_electronico String       @unique
+  activo             Boolean      @default(true) //para cuando es nuevo
   
   asignaciones       Assignment[]
   activosResponsable Asset[]      @relation("EmpleadoResponsable")

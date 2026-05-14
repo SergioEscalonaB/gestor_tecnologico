@@ -96,17 +96,18 @@ export async function PUT(
   }
 }
 
-//  Eliminar un empleado por ID
-export async function DELETE(
+//  Desactivar un empleado por ID
+export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const idNumber = parseInt(id);
 
-  await prisma.employee.delete({
+  const empleado = await prisma.employee.update({
     where: { id: idNumber },
+    data: { activo: false }
   });
 
-  return Response.json({ mensaje: "Empleado eliminado correctamente" });
+  return Response.json(empleado);
 }
