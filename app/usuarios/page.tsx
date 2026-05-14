@@ -250,6 +250,7 @@ export default function Usuarios() {
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Cargo</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Área</th>
+                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
                 <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Correo Electrónico</th>
               </tr>
             </thead>
@@ -277,6 +278,19 @@ export default function Usuarios() {
                     <td className="px-6 py-4 text-sm text-gray-700 font-medium">{empleado.nombre}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.cargo}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{empleado.area}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                      {empleado.activo ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold border border-green-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                          Activo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold border border-red-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                          Inactivo
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-900 text-center">
                       <div className="flex items-center justify-end gap-3">
                         <span>{empleado.correo_electronico ?? "- -"}</span>

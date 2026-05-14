@@ -5,4 +5,5 @@ export type Empleado = {
   cargo: string;
   area: string;
   correo_electronico: string;
+  activo: boolean;
 };

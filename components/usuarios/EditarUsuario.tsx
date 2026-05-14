@@ -138,6 +138,50 @@ export function EditarUsuario({
 
       </div>
 
+      {/* Botón desactivar — solo si el empleado está activo */}
+      {empleado.activo && (
+        <button
+          onClick={async () => {
+            if (!confirm(`¿Seguro que deseas desactivar a ${empleado.nombre}?`)) return;
+
+            const res = await fetch(`/api/empleados/${empleado.id}`, {
+              method: "PATCH",
+            });
+
+            if (res.ok) {
+              const actualizado = await res.json();
+              onGuardado(actualizado);
+            }
+          }}
+          className="w-full py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-bold rounded-xl border border-red-200 transition-colors"
+        >
+          Desactivar usuario
+        </button>
+      )}
+
+      {/* Botón reactivar — solo si el empleado está inactivo */}
+      {!empleado.activo && (
+        <button
+          onClick={async () => {
+            if (!confirm(`¿Seguro que deseas reactivar a ${empleado.nombre}?`)) return;
+
+            const res = await fetch(`/api/empleados/${empleado.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ activo: true }),
+            });
+
+            if (res.ok) {
+              const actualizado = await res.json();
+              onGuardado(actualizado);
+            }
+          }}
+          className="w-full py-2 bg-green-50 hover:bg-green-100 text-green-600 text-sm font-bold rounded-xl border border-green-200 transition-colors"
+        >
+          Reactivar usuario
+        </button>
+      )}
+
       {/* Botón guardar */}
       <button
         onClick={handleGuardar}
@@ -145,7 +189,7 @@ export function EditarUsuario({
         className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-60"
       >
         {guardando ? "Guardando..." : "Guardar cambios"}
-      </button>
+      </button>   
     </div>
   );
 }
