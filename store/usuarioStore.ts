@@ -1,12 +1,12 @@
 import { create } from "zustand";
 
-// Definir el tipo para el store de mantenimiento
+// Definir el tipo para el store de Usuario
 type UsuarioStore = {
   actualizar: number;
   refrescar: () => void;
 };
 
-// Crear el store de mantenimiento usando Zustand
+// Crear el store de Usuario usando Zustand
 export const useUsuarioStore = create<UsuarioStore>((set) => ({
   actualizar: 0,
   refrescar: () => set((state) => ({ actualizar: state.actualizar + 1 })),

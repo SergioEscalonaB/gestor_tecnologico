@@ -21,6 +21,7 @@ import {
 import { Empleado } from "@/tipos/empleado";
 import { useUsuarioStore } from "@/store/usuarioStore";
 import { NuevoUsuario } from "@/components/usuarios/NuevoUsuario";
+import { EditarUsuario } from "@/components/usuarios/EditarUsuario";
 
 const ITEMS_POR_PAGINA = 8;
 
@@ -67,6 +68,7 @@ export default function Usuarios() {
 
   // Para lo del nuevo usuario
   const [mostrarNuevo, setMostrarNuevo] = useState(false);
+  const [editandoUsuario, setEditandoUsuario] = useState(false);
   const actualizar = useUsuarioStore(state => state.actualizar);
 
   // Carga empleados desde la API
@@ -310,8 +312,13 @@ export default function Usuarios() {
                   </div>
                 </div>
               </div>
+
+              {/* Botón de cierre */}
               <button
-                onClick={() => setMostrarDetalle(false)}
+                onClick={() => {
+                  setMostrarDetalle(false);
+                  setEditandoUsuario(false);
+                }}
                 className="p-2.5 hover:bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 transition-all active:scale-95"
               >
                 <X size={20} />
@@ -328,12 +335,43 @@ export default function Usuarios() {
                     <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Información del Usuario</h4>
                   </div>
-                  <button className="flex items-center gap-2 px-4 py-1.5 bg-gray-50 text-gray-600 text-xs font-semibold rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                    <Pencil size={14} />
-                    Editar Usuario
-                  </button>
+                  
+                  {/* Botón de editar/cancelar */}
+                  <button
+                    onClick={() => setEditandoUsuario(!editandoUsuario)}
+                    className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
+                      editandoUsuario 
+                        ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100" 
+                        : "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                    }`}
+                  >
+                    {editandoUsuario ? (
+                      <>
+                        <X size={14} />
+                        Cancelar
+                      </>
+                    ) : (
+                    <>
+                      <Pencil size={14} />
+                      <span>Editar Usuario</span>
+                    </>
+                  )}
+              </button>
                 </div>
 
+                {/* Formulario de Edición */}
+                {editandoUsuario && selectedEmpleado ? (
+                  <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 sm:p-5">
+                    <EditarUsuario 
+                      empleado={selectedEmpleado} 
+                      onGuardado={(actualizado) => {
+                        setEmpleados(prev => prev.map(e => e.id === actualizado.id ? actualizado : e));
+                        setSelectedEmpleado(actualizado);
+                        setEditandoUsuario(false);
+                      }}
+                    />
+                  </div>
+                ) : (
                 <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
                   {/* Avatar y Datos Básicos */}
                   <div className="flex flex-col items-center md:items-start gap-4">
@@ -383,6 +421,7 @@ export default function Usuarios() {
                     </div>
                   </div>
                 </div>
+              )}
               </section>
 
               {/* Parte 2: Equipos Asignados */}

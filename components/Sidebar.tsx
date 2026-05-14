@@ -62,7 +62,7 @@ export const Sidebar = ({ isCollapsed, toggleSidebar }: SidebarProps) => {
   const menuItems = [
     { href: "/dashboard", icon: <LayoutDashboard size={22} />, label: "Dashboard", section: "principal" },
     { href: "/activos", icon: <Laptop size={22} />, label: "Activos", section: "principal" },
-    { href: "/categorias", icon: <Tags size={22} />, label: "Categorías", section: "principal" },
+    { href: "/asignaciones", icon: <Tags size={22} />, label: "Asignaciones", section: "principal" },
     { href: "/mantenimientos", icon: <Wrench size={22} />, label: "Mantenimientos", section: "mantenimiento" },
     { href: "/usuarios", icon: <Users size={22} />, label: "Usuarios", section: "usuarios" }
   ];
