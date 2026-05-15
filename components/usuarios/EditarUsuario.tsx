@@ -146,6 +146,8 @@ export function EditarUsuario({
 
             const res = await fetch(`/api/empleados/${empleado.id}`, {
               method: "PATCH",
+              headers: { "Content-Type": "application/json" }, 
+              body: JSON.stringify({ activo: false }),
             });
 
             if (res.ok) {
@@ -176,7 +178,7 @@ export function EditarUsuario({
               onGuardado(actualizado);
             }
           }}
-          className="w-full py-2 bg-green-50 hover:bg-green-100 text-green-600 text-sm font-bold rounded-xl border border-green-200 transition-colors"
+          className="w-full py-2 inline-flex items-center justify-center gap-2 rounded-full bg-green-100 text-green-700 text-sm font-semibold border border-green-200 hover:bg-green-200 transition-colors"
         >
           Reactivar usuario
         </button>
