@@ -5,6 +5,8 @@ import {
   Search, Filter, Plus, ChevronLeft, ChevronRight, Trash2, Eye, X
 } from "lucide-react";
 import { Asignacion } from "@/tipos/asignaciones";
+import { useActivoStore } from "@/store/activoStore";
+import { NuevaAsignacion } from "@/components/asignaciones/NuevaAsignacion";
 
 const ITEMS_POR_PAGINA = 8;
 
@@ -15,6 +17,10 @@ export default function Asignaciones() {
   // Filtro no utilizare
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(true);
+
+  const [mostrarNuevo, setMostrarNuevo] = useState(false);
+  const actualizar = useActivoStore((state) => state.actualizar);
+  
 
   //Cargar asignaciones de la API
   useEffect(() => {
@@ -30,7 +36,7 @@ export default function Asignaciones() {
       }
     };
     cargarAsignaciones();
-  }, []);
+  }, [actualizar]);
 
 
   //Reinicia la pagina actual al cambiar busqueda o filtros (desabilitado)
@@ -42,6 +48,20 @@ export default function Asignaciones() {
   function normalizarTexto(texto: string) {
     return texto.trim().toLowerCase();
   }
+
+  // Formato de fechas para la tabla
+  const formatearFecha = (fechaStr: string | null) => {
+    if (!fechaStr) return "-";
+    const fecha = new Date(fechaStr);
+    return fecha.toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }) + " / " + fecha.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   // Filtra por busqueda en la asignacion
   const asignacionesFiltradas = asignaciones.filter(a => {
@@ -102,7 +122,13 @@ export default function Asignaciones() {
             </div>
             
             <div className="flex items-center gap-3 w-full md:w-auto">
-              {/* Botón filtros y boton nuevo*/}  
+              {/* Botón filtros y boton nuevo*/}
+              <button
+                onClick={() => setMostrarNuevo(true)}
+                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
+                <Plus size={20} />
+                <span>Nueva Asignación</span>
+              </button>  
             </div>
           </div>
 
@@ -138,8 +164,8 @@ export default function Asignaciones() {
                   <td className="px-6 py-4 text-sm text-gray-900">{a.activo?.nombre || "-"}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{a.empleado?.nombre || "-"}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{a.empleado?.cedula || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.fecha_inicio}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.fecha_fin || "-"}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{formatearFecha(a.fecha_inicio)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{formatearFecha(a.fecha_fin)}</td>
                 </tr>
               ))}
             </tbody>
@@ -204,6 +230,12 @@ export default function Asignaciones() {
         </div>
         </div>
       </div>
+
+      {/* Modal de Nueva Asignación */}
+      <NuevaAsignacion 
+        isOpen={mostrarNuevo} 
+        onClose={() => setMostrarNuevo(false)} 
+      />
     </div>
   )
 
