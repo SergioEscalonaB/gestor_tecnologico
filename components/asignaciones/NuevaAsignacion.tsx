@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { X, Search, Package, User, Calendar, Check } from "lucide-react";
 import { useActivoStore } from "@/store/activoStore";
 
@@ -25,10 +25,11 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
 
+  // Cargar activos de la API
   useEffect(() => {
     if (busquedaActivo.length < 2) { setActivos([]); return; }
     const delayDebounceFn = setTimeout(() => {
-        fetch(`/api/activos?estado=disponible`)
+        fetch(`/api/activos`)
           .then(res => res.json())
           .then(data => {
             const filtrados = data.filter((a: any) =>
@@ -41,6 +42,29 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
     return () => clearTimeout(delayDebounceFn);
   }, [busquedaActivo]);
 
+  //Colores de los estados de los activos
+  const getEstadoColor = (estado: string) => {
+    switch (estado) {
+      case 'disponible': return 'bg-green-100 text-green-600';
+      case 'en_uso': return 'bg-blue-100 text-blue-600';
+      case 'mantenimiento': return 'bg-orange-100 text-orange-600';
+      case 'dado_baja': return 'bg-red-100 text-red-600';
+      default: return 'bg-gray-100 text-gray-600';
+    }
+  };
+
+  // Estados de los activos
+  const getEstadoLabel = (estado: string) => {
+    switch (estado) {
+      case 'disponible': return 'Disponible';
+      case 'en_uso': return 'En Uso';
+      case 'mantenimiento': return 'Mantenimiento';
+      case 'dado_baja': return 'Baja';
+      default: return estado;
+    }
+  };
+
+  // Cargar empleados de la API
   useEffect(() => {
     if (busquedaEmp.length < 2) { setEmpleados([]); return; }
     const delayDebounceFn = setTimeout(() => {
@@ -57,6 +81,7 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
     return () => clearTimeout(delayDebounceFn);
   }, [busquedaEmp]);
 
+  // Guardar asignación
   const handleGuardar = async () => {
     if (!activoSel || !empSel) {
       setError("Selecciona un activo y un empleado.");
@@ -70,10 +95,19 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ activoId: activoSel.id, empleadoId: empSel.id }),
       });
+
       if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Error");
+        const data = await res.json();
+        let mensaje = data.error || "Error";
+        // Traducir estados a nombres para mostrarlos 
+        mensaje = mensaje
+          .replace("en_uso", "En Uso")
+          .replace("mantenimiento", "Mantenimiento")
+          .replace("dado_baja", "Dado de Baja");
+          
+        throw new Error(mensaje);
       }
+      
       refrescar();
       handleCerrar();
     } catch (err: any) {
@@ -97,7 +131,7 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]">
       <div className="bg-white max-w-sm rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-        {/* Header simple */}
+        {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-white">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg text-white shadow-sm">
@@ -120,7 +154,15 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
               <div className="flex items-center justify-between px-4 py-3 border border-blue-200 bg-blue-50/50 rounded-xl">
                 <div className="flex items-center gap-3">
                     <Package size={16} className="text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-900">{activoSel.nombre} <span className="text-blue-400 font-normal">({activoSel.numero_serie})</span></span>
+                    <div>
+                        <p className="text-sm font-semibold text-blue-900">{activoSel.nombre}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-[10px] text-blue-400">({activoSel.numero_serie})</p>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase ${getEstadoColor(activoSel.estado)}`}>
+                                {getEstadoLabel(activoSel.estado)}
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <button onClick={() => setActivoSel(null)} className="text-blue-400 hover:text-blue-600"><X size={16} /></button>
               </div>
@@ -138,9 +180,14 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
                 {showActivos && activos.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
                     {activos.map(a => (
-                      <button key={a.id} onClick={() => { setActivoSel(a); setShowActivos(false); }} className="w-full px-4 py-2.5 text-left hover:bg-gray-50 text-sm border-b border-gray-50 last:border-0 transition-colors">
-                        <p className="font-semibold text-gray-800">{a.nombre}</p>
-                        <p className="text-[10px] text-gray-400 uppercase font-bold">{a.numero_serie} • {a.marca}</p>
+                      <button key={a.id} onClick={() => { setActivoSel(a); setShowActivos(false); }} className="w-full px-4 py-2.5 text-left hover:bg-gray-50 text-sm border-b border-gray-50 last:border-0 transition-colors flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold text-gray-800">{a.nombre}</p>
+                          <p className="text-[10px] text-gray-400 uppercase font-bold">{a.numero_serie}</p>
+                        </div>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${getEstadoColor(a.estado)}`}>
+                            {getEstadoLabel(a.estado)}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -186,7 +233,7 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
           </div>
         </div>
 
-        {/* Footer sencillo */}
+        {/* Footer*/}
         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end items-center gap-3">
           <button 
             onClick={handleCerrar} 
