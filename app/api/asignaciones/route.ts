@@ -53,7 +53,10 @@ export async function POST(req: Request) {
     }),
     prisma.asset.update({
       where: { id: activoId },
-      data: { estado: "en_uso" }
+      data: { 
+        estado: "en_uso",
+        empleadoResponsableId: empleadoId
+      }
     })
   ]);
 

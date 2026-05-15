@@ -405,9 +405,15 @@ export default function Usuarios() {
                     </div>*/}
 
                     <div className="text-center md:text-left">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 mb-2 uppercase">
-                        Activo
-                      </span>
+                      {selectedEmpleado.activo ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200 mb-2 uppercase">
+                          Activo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 mb-2 uppercase">
+                          Inactivo
+                        </span>
+                      )}
                       <p className="text-sm font-medium text-gray-900">{selectedEmpleado.nombre}</p>
                       <p className="text-xs text-gray-500">{selectedEmpleado.correo_electronico}</p>
                     </div>

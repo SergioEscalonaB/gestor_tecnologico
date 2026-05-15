@@ -149,6 +149,7 @@ export default function Activos() {
                   <span className="w-2 h-2 rounded-full bg-blue-600" />
                 )}
               </button>
+              
               <button
                 onClick={() => setMostrarNuevo(true)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 font-semibold">
