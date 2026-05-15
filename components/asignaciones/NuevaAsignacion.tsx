@@ -96,7 +96,7 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]">
-      <div className="bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div className="bg-white max-w-sm rounded-2xl shadow-xl overflow-hidden border border-gray-100">
         {/* Header simple */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-white">
           <div className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
 
           {/* Selector Activo */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider ml-1">Equipo a asignar *</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Equipo a asignar *</label>
             {activoSel ? (
               <div className="flex items-center justify-between px-4 py-3 border border-blue-200 bg-blue-50/50 rounded-xl">
                 <div className="flex items-center gap-3">
@@ -151,7 +151,7 @@ export const NuevaAsignacion = ({ isOpen, onClose }: NuevaAsignacionProps) => {
 
           {/* Selector Empleado */}
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider ml-1">Empleado Responsable *</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Empleado Responsable *</label>
             {empSel ? (
               <div className="flex items-center justify-between px-4 py-3 border border-green-200 bg-green-50/50 rounded-xl">
                 <div className="flex items-center gap-3">
