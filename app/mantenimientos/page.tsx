@@ -62,13 +62,18 @@ export default function Mantenimientos() {
     setPaginaActual(1);
   }, [busqueda, filtroTipo, filtroEstado]);
 
+  function normalizarTexto(texto: string) {
+    return texto.trim().toLowerCase();
+  }
+
   // Filtro de busqueda y filtros de tabla
   const mantenimientosFiltrados = mantenimientos.filter((m) => {
-    const texto = busqueda.toLowerCase();
+    const texto = normalizarTexto(busqueda);
     const coincideBusqueda =
-      (m.activo_nombre?.toLowerCase() || "").includes(texto) ||
-      (m.tipo?.toLowerCase() || "").includes(texto) ||
-      (m.responsable?.toLowerCase() || "").includes(texto);
+      normalizarTexto(String(m.id)).includes(texto) ||
+      normalizarTexto(m.activo_nombre?.toLowerCase() || "").includes(texto) ||
+      normalizarTexto(m.tipo?.toLowerCase() || "").includes(texto) ||
+      normalizarTexto(m.responsable?.toLowerCase() || "").includes(texto);
     
     const coincideTipo = filtroTipo === "" || m.tipo?.toLowerCase() === filtroTipo.toLowerCase();
     const coincideEstado = filtroEstado === "" || m.estado?.toLowerCase() === filtroEstado.toLowerCase();

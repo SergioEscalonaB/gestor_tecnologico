@@ -103,6 +103,8 @@ export default function Usuarios() {
   const empleadosFiltrados = empleados.filter((empleado) => {
     const texto = normalizarTexto(busqueda);
     const coincideBusqueda = !busqueda || 
+      //normalizarTexto(String(empleado.id)).includes(texto) ||
+      normalizarTexto(String(empleado.cedula)).includes(texto) ||
       normalizarTexto(empleado.nombre).includes(texto) ||
       normalizarTexto(empleado.cargo).includes(texto) ||
       normalizarTexto(empleado.area).includes(texto) ||

@@ -11,14 +11,14 @@ export function EditarUsuario({
   empleado: Empleado;
   onGuardado: (actualizado: Empleado) => void;
 }) {
-  const [cedula, setCedula]   = useState(String(empleado.cedula));
-  const [nombre, setNombre]   = useState(empleado.nombre);
-  const [correo, setCorreo]   = useState(empleado.correo_electronico);
-  const [cargo, setCargo]     = useState(empleado.cargo);
-  const [area, setArea]       = useState(empleado.area);
+  const [cedula, setCedula] = useState(String(empleado.cedula));
+  const [nombre, setNombre] = useState(empleado.nombre);
+  const [correo, setCorreo] = useState(empleado.correo_electronico);
+  const [cargo, setCargo] = useState(empleado.cargo);
+  const [area, setArea] = useState(empleado.area);
 
   const [guardando, setGuardando] = useState(false);
-  const [error, setError]         = useState("");
+  const [error, setError] = useState("");
 
   async function handleGuardar() {
     if (!cedula || !nombre || !correo || !cargo || !area) {
