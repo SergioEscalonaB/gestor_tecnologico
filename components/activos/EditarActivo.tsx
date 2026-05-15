@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { User, Search, X, ChevronDown, MapPin, Hash, Tag } from "lucide-react";
 import { Activo } from "@/tipos/activo";
+import { useActivoStore } from "@/store/activoStore";
 
 type EmpleadoSimple = {
   id: number;
@@ -17,6 +18,7 @@ export function EditarActivo({
   activo: Activo;
   onGuardado: (actualizado: Activo) => void;
 }) {
+  const refrescar = useActivoStore((state) => state.refrescar);
   const estaEnMantenimiento = activo.estado === "mantenimiento";
 
   const [nombre, setNombre] = useState(activo.nombre);
@@ -91,6 +93,7 @@ export function EditarActivo({
 
     if (res.ok) {
       const actualizado = await res.json();
+      refrescar(); // Sincroniza con el historial de asignaciones
       onGuardado({
         ...actualizado,
         empleadoResponsable: empleadoSeleccionado

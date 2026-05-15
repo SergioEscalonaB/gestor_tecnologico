@@ -46,44 +46,24 @@ export async function PUT(
 
   // Realizamos la actualización en una transacción para mantener la coherencia con el historial de asignaciones
   const activo = await prisma.$transaction(async (tx) => {
-    // 1. Obtener el estado actual del activo antes de actualizar
+    // 1. Obtener el responsable actual
     const oldActivo = await tx.asset.findUnique({
       where: { id: idNumber },
       select: { empleadoResponsableId: true }
     });
 
-    // 2. Actualizar el activo
-    const updated = await tx.asset.update({
-      where: { id: idNumber },
-      data: {
-        nombre, categoria, marca, modelo,
-        numero_serie, estado, 
-        ubicacion : ubicacion ?? null,
-        fecha_compra: new Date(fecha_compra),
-        valor_compra : valor_compra ?? null,
-        proveedor : proveedor ?? null,
-        empleadoResponsableId: empleadoResponsableId ?? null
-      },
-      include: {
-        empleadoResponsable: true
-      }
-    });
-
-    // 3. Si el responsable ha cambiado, gestionar el historial de asignaciones
+    // 2. Si el responsable ha cambiado, gestionar el historial de asignaciones
     if (oldActivo?.empleadoResponsableId !== empleadoResponsableId) {
-      // Cerrar la asignación anterior si existía
-      if (oldActivo?.empleadoResponsableId) {
-        await tx.assignment.updateMany({
-          where: { 
-            activoId: idNumber, 
-            empleadoId: oldActivo.empleadoResponsableId, 
-            fecha_fin: null 
-          },
-          data: { fecha_fin: new Date() }
-        });
-      }
+      // Cerramos CUALQUIER asignación activa de este activo para evitar duplicados
+      await tx.assignment.updateMany({
+        where: { 
+          activoId: idNumber, 
+          fecha_fin: null 
+        },
+        data: { fecha_fin: new Date() }
+      });
 
-      // Crear la nueva asignación si hay un nuevo responsable
+      // Creamos la nueva asignación si hay un nuevo responsable
       if (empleadoResponsableId) {
         await tx.assignment.create({
           data: { 
@@ -95,7 +75,29 @@ export async function PUT(
       }
     }
 
-    return updated;
+    // 3. Actualizar el activo con el nuevo estado y responsable
+    // Si hay responsable -> en_uso. Si no hay -> disponible (a menos que sea mantenimiento/baja)
+    let nuevoEstado = estado;
+    if (estado === "disponible" || estado === "en_uso") {
+        nuevoEstado = empleadoResponsableId ? "en_uso" : "disponible";
+    }
+
+    return await tx.asset.update({
+      where: { id: idNumber },
+      data: {
+        nombre, categoria, marca, modelo,
+        numero_serie, 
+        estado: nuevoEstado, 
+        ubicacion : ubicacion ?? null,
+        fecha_compra: new Date(fecha_compra),
+        valor_compra : valor_compra ?? null,
+        proveedor : proveedor ?? null,
+        empleadoResponsableId: empleadoResponsableId ?? null
+      },
+      include: {
+        empleadoResponsable: true
+      }
+    });
   });
 
   return Response.json(activo);
