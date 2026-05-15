@@ -11,10 +11,16 @@ import { NuevaAsignacion } from "@/components/asignaciones/NuevaAsignacion";
 const ITEMS_POR_PAGINA = 8;
 
 //COomponente principal de Asignaciones
+import { useSearchParams } from "next/navigation";
+
 export default function Asignaciones() {
+  const searchParams = useSearchParams();
+  const queryBuscar = searchParams.get("buscar");
+  const queryActivoId = searchParams.get("activoId");
+
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
-  const [busqueda, setBusqueda] = useState("");
-  // Filtro no utilizare
+  const [busqueda, setBusqueda] = useState(queryBuscar || "");
+  const [activoIdFiltro, setActivoIdFiltro] = useState(queryActivoId || "");
   const [paginaActual, setPaginaActual] = useState(1);
   const [cargando, setCargando] = useState(true);
 
@@ -26,7 +32,10 @@ export default function Asignaciones() {
   useEffect(() => {
     const cargarAsignaciones = async () => {
       try {
-        const res = await fetch("/api/asignaciones");
+        const url = activoIdFiltro 
+            ? `/api/asignaciones?activoId=${activoIdFiltro}` 
+            : "/api/asignaciones";
+        const res = await fetch(url);
         const datos = await res.json();
         setAsignaciones(datos);
       } catch (error) {
@@ -36,7 +45,7 @@ export default function Asignaciones() {
       }
     };
     cargarAsignaciones();
-  }, [actualizar]);
+  }, [actualizar, activoIdFiltro]);
 
 
   //Reinicia la pagina actual al cambiar busqueda o filtros (desabilitado)
@@ -110,15 +119,30 @@ export default function Asignaciones() {
         <div className="p-4 md:p-6 flex flex-col gap-4 bg-white border-b border-gray-50">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
             {/* Búsqueda */}
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Buscar por empleado, activo o fecha"
-                value={busqueda}
-                onChange={(e) => { setBusqueda(e.target.value); setPaginaActual(1); }}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
+            <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+              <div className="relative w-full md:w-96">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Buscar por empleado, activo o fecha"
+                  value={busqueda}
+                  onChange={(e) => { setBusqueda(e.target.value); setPaginaActual(1); }}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+              </div>
+              
+              {activoIdFiltro && (
+                <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 animate-in fade-in slide-in-from-left-2">
+                  <span className="text-xs font-bold uppercase tracking-tight">Historial Activo #{activoIdFiltro}</span>
+                  <button 
+                    onClick={() => setActivoIdFiltro("")}
+                    className="p-0.5 hover:bg-blue-200 rounded-full transition-colors"
+                    title="Quitar filtro"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
             </div>
             
             <div className="flex items-center gap-3 w-full md:w-auto">

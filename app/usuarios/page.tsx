@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link";
+
 import { useState, useEffect, useMemo } from "react";
 import {
   Search,
@@ -502,10 +504,13 @@ export default function Usuarios() {
                             </td>
                             {/* Boton para ver historial de asignaciones*/}
                             <td className="px-4 py-3.5 text-right">
-                              <button className="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1 justify-end ml-auto">
+                              <Link 
+                                href={`/asignaciones?activoId=${activo.id}`}
+                                className="text-blue-600 hover:text-blue-800 text-xs font-semibold flex items-center gap-1 justify-end ml-auto"
+                              >
                                 <Eye size={12} />
                                 Ver Historial
-                              </button>
+                              </Link>
                             </td>
                           </tr>
                         ))

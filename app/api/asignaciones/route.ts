@@ -5,14 +5,18 @@ import { PrismaClient } from "@prisma/client";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// Obtener todas las asignaciones con empleado y activo completos
-export async function GET() {
+// Obtener todas las asignaciones (opcionalmente filtradas por activoId)
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const activoId = searchParams.get("activoId");
+
   const asignaciones = await prisma.assignment.findMany({
+    where: activoId ? { activoId: parseInt(activoId) } : {},
     include: {
       activo: true,
       empleado: true
     },
-    orderBy: { fecha_inicio: "desc" }
+    orderBy: { id: "desc" }
   });
 
   return Response.json(asignaciones);
