@@ -6,7 +6,7 @@ const prisma = new PrismaClient({ adapter });
 
 export async function GET() {
   try {
-    // 1. Obteniendo todas las estadísticas del dashboard en paralelo
+    // Obtiene en paralelo los conteos principales del dashboard.
     const [
       totalActivos,
       enUso,
@@ -23,7 +23,7 @@ export async function GET() {
       prisma.assignment.count({ where: { fecha_fin: null } }),
     ]);
 
-    // 2. Obteniendo todas las actividades recientes del dashboard
+    // Obtiene actividad reciente combinando asignaciones y mantenimientos.
     const [recentAssignments, recentMaintenances] = await Promise.all([
       prisma.assignment.findMany({
         take: 5,
@@ -42,7 +42,6 @@ export async function GET() {
       }),
     ]);
 
-    // 3. Combinando todas las actividades recientes del dashboard
     const activities = [
       ...recentAssignments.map((asg) => ({
         type: "assignment",
@@ -62,7 +61,7 @@ export async function GET() {
       })),
     ]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5); // Tomando solo las 4 actividades más recientes
+      .slice(0, 5); // Limita a las 5 actividades más recientes
 
     return Response.json({
       estadisticas: {

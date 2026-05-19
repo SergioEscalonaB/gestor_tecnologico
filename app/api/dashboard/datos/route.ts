@@ -4,63 +4,58 @@ import { PrismaClient } from "@prisma/client";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// Estructura para filtrar por un rango de fechas opcional.
-type DateRange = {
+type RangoFechas = {
   gte?: Date;
   lte?: Date;
 };
 
-// Convierte los query params en un filtro usable por Prisma.
-function buildDateRange(
+function construirRangoFechas(
   inicio: string | null,
   fin: string | null,
-): DateRange | null {
-  const range: DateRange = {};
+): RangoFechas | null {
+  const rango: RangoFechas = {};
 
   if (inicio) {
-    const start = new Date(inicio);
-    if (!Number.isNaN(start.getTime())) {
-      range.gte = start;
+    const fechaInicio = new Date(inicio);
+    if (!Number.isNaN(fechaInicio.getTime())) {
+      rango.gte = fechaInicio;
     }
   }
 
   if (fin) {
-    const end = new Date(fin);
-    if (!Number.isNaN(end.getTime())) {
-      end.setHours(23, 59, 59, 999);
-      range.lte = end;
+    const fechaFin = new Date(fin);
+    if (!Number.isNaN(fechaFin.getTime())) {
+      fechaFin.setHours(23, 59, 59, 999);
+      rango.lte = fechaFin;
     }
   }
 
-  return Object.keys(range).length > 0 ? range : null;
+  return Object.keys(rango).length > 0 ? rango : null;
 }
 
-// Verifica si una fecha pertenece al rango seleccionado.
-function isInRange(dateValue: Date | string, range: DateRange | null) {
-  if (!range) {
+function estaEnRango(fechaValor: Date | string, rango: RangoFechas | null) {
+  if (!rango) {
     return true;
   }
 
-  const date = new Date(dateValue);
+  const fecha = new Date(fechaValor);
 
-  if (range.gte && date < range.gte) {
+  if (rango.gte && fecha < rango.gte) {
     return false;
   }
 
-  if (range.lte && date > range.lte) {
+  if (rango.lte && fecha > rango.lte) {
     return false;
   }
 
   return true;
 }
 
-// Convierte fechas a ISO para enviarlas al frontend.
-function toIso(value: Date | string) {
-  return new Date(value).toISOString();
+function aIso(valor: Date | string) {
+  return new Date(valor).toISOString();
 }
 
-// Normaliza estados como "en uso" a formato con guion bajo.
-function normalizeState(estado: string) {
+function normalizarEstado(estado: string) {
   return estado.toLowerCase().replace(/\s+/g, "_");
 }
 
@@ -70,16 +65,16 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const inicio = searchParams.get("inicio");
     const fin = searchParams.get("fin");
-    const dateRange = buildDateRange(inicio, fin);
+    const rangoFechas = construirRangoFechas(inicio, fin);
 
     // Trae en paralelo los datos base que alimentan el dashboard.
     const [
-      assets,
+      activos,
       totalUsuarios,
       totalAsignaciones,
-      recentAssignments,
-      upcomingMaintenances,
-      recentMaintenances,
+      asignacionesRecientes,
+      mantenimientosProximos,
+      mantenimientosRecientes,
     ] = await Promise.all([
       prisma.asset.findMany({
         select: {
@@ -104,7 +99,7 @@ export async function GET(req: Request) {
       prisma.employee.count({ where: { activo: true } }),
       prisma.assignment.count({ where: { fecha_fin: null } }),
       prisma.assignment.findMany({
-        where: dateRange ? { fecha_inicio: dateRange } : {},
+        where: rangoFechas ? { fecha_inicio: rangoFechas } : {},
         take: 5,
         orderBy: { fecha_inicio: "desc" },
         include: {
@@ -134,7 +129,7 @@ export async function GET(req: Request) {
         },
       }),
       prisma.maintenance.findMany({
-        where: dateRange ? { fecha_programada: dateRange } : {},
+        where: rangoFechas ? { fecha_programada: rangoFechas } : {},
         take: 5,
         orderBy: { fecha_programada: "asc" },
         include: {
@@ -153,7 +148,7 @@ export async function GET(req: Request) {
         },
       }),
       prisma.maintenance.findMany({
-        where: dateRange ? { fecha_programada: dateRange } : {},
+        where: rangoFechas ? { fecha_programada: rangoFechas } : {},
         take: 5,
         orderBy: { fecha_programada: "desc" },
         include: {
@@ -174,32 +169,32 @@ export async function GET(req: Request) {
     ]);
 
     // Calcula el resumen principal de activos.
-    const totalActivos = assets.length;
+    const totalActivos = activos.length;
 
-    const estadoCounts = assets.reduce<Record<string, number>>(
-      (accumulator, asset) => {
-        const estado = normalizeState(asset.estado);
-        accumulator[estado] = (accumulator[estado] || 0) + 1;
-        return accumulator;
+    const conteoEstados = activos.reduce<Record<string, number>>(
+      (acumulador, activo) => {
+        const estado = normalizarEstado(activo.estado);
+        acumulador[estado] = (acumulador[estado] || 0) + 1;
+        return acumulador;
       },
       {},
     );
 
-    const enUso = estadoCounts.en_uso || 0;
-    const mantenimiento = estadoCounts.mantenimiento || 0;
-    const disponibles = estadoCounts.disponible || 0;
+    const enUso = conteoEstados.en_uso || 0;
+    const mantenimiento = conteoEstados.mantenimiento || 0;
+    const disponibles = conteoEstados.disponible || 0;
 
     // Agrupa activos por categoría para la visualización.
-    const categoriaCounts = assets.reduce<Record<string, number>>(
-      (accumulator, asset) => {
-        const categoria = asset.categoria.trim() || "Sin categoría";
-        accumulator[categoria] = (accumulator[categoria] || 0) + 1;
-        return accumulator;
+    const conteoCategorias = activos.reduce<Record<string, number>>(
+      (acumulador, activo) => {
+        const categoria = activo.categoria.trim() || "Sin categoría";
+        acumulador[categoria] = (acumulador[categoria] || 0) + 1;
+        return acumulador;
       },
       {},
     );
 
-    const activosPorCategoria = Object.entries(categoriaCounts)
+    const activosPorCategoria = Object.entries(conteoCategorias)
       .map(([categoria, cantidad]) => ({
         categoria,
         cantidad,
@@ -214,81 +209,82 @@ export async function GET(req: Request) {
       { estado: "En uso", cantidad: enUso },
       { estado: "En mantenimiento", cantidad: mantenimiento },
       { estado: "Disponibles", cantidad: disponibles },
-      { estado: "Dados de baja", cantidad: estadoCounts.dado_baja || 0 },
+      { estado: "Dados de baja", cantidad: conteoEstados.dado_baja || 0 },
     ];
 
     // Normaliza la lista de activos más recientes para la tabla.
-    const activosRecientes = assets
-      .filter((asset) => isInRange(asset.fecha_compra, dateRange))
+    const activosRecientes = activos
+      .filter((activo) => estaEnRango(activo.fecha_compra, rangoFechas))
       .slice(0, 5)
-      .map((asset) => ({
-        id: asset.id,
-        nombre: asset.nombre,
-        categoria: asset.categoria,
-        marca: asset.marca,
-        modelo: asset.modelo,
-        numero_serie: asset.numero_serie,
-        estado: asset.estado,
-        ubicacion: asset.ubicacion,
-        fecha_compra: toIso(asset.fecha_compra),
-        empleadoResponsable: asset.empleadoResponsable
+      .map((activo) => ({
+        id: activo.id,
+        nombre: activo.nombre,
+        categoria: activo.categoria,
+        marca: activo.marca,
+        modelo: activo.modelo,
+        numero_serie: activo.numero_serie,
+        estado: activo.estado,
+        ubicacion: activo.ubicacion,
+        fecha_compra: aIso(activo.fecha_compra),
+        empleadoResponsable: activo.empleadoResponsable
           ? {
-              id: asset.empleadoResponsable.id,
-              nombre: asset.empleadoResponsable.nombre,
+              id: activo.empleadoResponsable.id,
+              nombre: activo.empleadoResponsable.nombre,
             }
           : null,
       }));
 
     // Normaliza los mantenimientos próximos para la tabla del dashboard.
-    const mantenimientosProximos = upcomingMaintenances.map((maintenance) => ({
-      id: maintenance.id,
-      activoId: maintenance.activoId,
-      activo_nombre: maintenance.activo_nombre,
-      tipo: maintenance.tipo,
-      descripcion: maintenance.descripcion,
-      fecha_programada: toIso(maintenance.fecha_programada),
-      responsable: maintenance.responsable,
-      estado: maintenance.estado,
-      fecha_finalizacion: maintenance.fecha_finalizacion
-        ? toIso(maintenance.fecha_finalizacion)
-        : null,
-      activo: maintenance.activo
-        ? {
-            id: maintenance.activo.id,
-            nombre: maintenance.activo.nombre,
-            categoria: maintenance.activo.categoria,
-            marca: maintenance.activo.marca,
-            modelo: maintenance.activo.modelo,
-            numero_serie: maintenance.activo.numero_serie,
-            ubicacion: maintenance.activo.ubicacion,
-            estado: maintenance.activo.estado,
-          }
-        : null,
-    }));
+    const mantenimientosProximosNormalizados = mantenimientosProximos.map(
+      (mantenimiento) => ({
+        id: mantenimiento.id,
+        activoId: mantenimiento.activoId,
+        activo_nombre: mantenimiento.activo_nombre,
+        tipo: mantenimiento.tipo,
+        descripcion: mantenimiento.descripcion,
+        fecha_programada: aIso(mantenimiento.fecha_programada),
+        responsable: mantenimiento.responsable,
+        estado: mantenimiento.estado,
+        fecha_finalizacion: mantenimiento.fecha_finalizacion
+          ? aIso(mantenimiento.fecha_finalizacion)
+          : null,
+        activo: mantenimiento.activo
+          ? {
+              id: mantenimiento.activo.id,
+              nombre: mantenimiento.activo.nombre,
+              categoria: mantenimiento.activo.categoria,
+              marca: mantenimiento.activo.marca,
+              modelo: mantenimiento.activo.modelo,
+              numero_serie: mantenimiento.activo.numero_serie,
+              ubicacion: mantenimiento.activo.ubicacion,
+              estado: mantenimiento.activo.estado,
+            }
+          : null,
+      }),
+    );
 
     // Combina asignaciones y mantenimientos en una sola secuencia de actividad.
-    const activities = [
-      ...recentAssignments.map((assignment) => ({
+    const actividadReciente = [
+      ...asignacionesRecientes.map((asignacion) => ({
         type: "assignment",
-        title: assignment.fecha_fin ? "Equipo devuelto" : "Equipo asignado",
-        detail: `${assignment.activo?.nombre || "Activo"} asignado a ${assignment.empleado?.nombre || "Empleado"}`,
-        date: toIso(assignment.fecha_inicio),
+        title: asignacion.fecha_fin ? "Equipo devuelto" : "Equipo asignado",
+        detail: `${asignacion.activo?.nombre || "Activo"} asignado a ${asignacion.empleado?.nombre || "Empleado"}`,
+        date: aIso(asignacion.fecha_inicio),
       })),
-      ...recentMaintenances.map((maintenance) => ({
+      ...mantenimientosRecientes.map((mantenimiento) => ({
         type: "maintenance",
-        // Respuesta final consumida por la página del dashboard.
-        title: maintenance.fecha_finalizacion
+        title: mantenimiento.fecha_finalizacion
           ? "Mantenimiento completado"
           : "Mantenimiento programado",
-        detail: `${maintenance.activo_nombre || maintenance.activo?.nombre || "Activo"} • ${maintenance.tipo}`,
-        date: toIso(
-          maintenance.fecha_finalizacion || maintenance.fecha_programada,
+        detail: `${mantenimiento.activo_nombre || mantenimiento.activo?.nombre || "Activo"} • ${mantenimiento.tipo}`,
+        date: aIso(
+          mantenimiento.fecha_finalizacion || mantenimiento.fecha_programada,
         ),
       })),
     ]
       .sort(
-        (left, right) =>
-          new Date(right.date).getTime() - new Date(left.date).getTime(),
+        (izquierda, derecha) =>
+          new Date(derecha.date).getTime() - new Date(izquierda.date).getTime(),
       )
       .slice(0, 6);
 
@@ -303,9 +299,9 @@ export async function GET(req: Request) {
       },
       activosPorCategoria,
       activosPorEstado,
-      mantenimientosProximos,
+      mantenimientosProximos: mantenimientosProximosNormalizados,
       activosRecientes,
-      recentActivity: activities,
+      recentActivity: actividadReciente,
       filtros: {
         inicio: inicio || "",
         fin: fin || "",

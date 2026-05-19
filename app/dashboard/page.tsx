@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react";
 import {
   Activity,
-  BarChart3,
-  CalendarDays,
   CheckCircle2,
-  Clock3,
   Package,
   RotateCcw,
-  TrendingUp,
   Users,
   Wrench,
 } from "lucide-react";
+import { GraficasDelPanel } from "../../components/dashboard/DashboardCharts";
+import { MantenimientosProximosPanel } from "../../components/dashboard/ProximosMantenimientos";
+import { ActivosRecientesPanel } from "../../components/dashboard/ActivosRecientes";
 
-type DashboardStats = {
+// Resumen general para las tarjetas principales.
+type ResumenEstadisticas = {
   totalActivos: number;
   enUso: number;
   mantenimiento: number;
@@ -23,13 +23,13 @@ type DashboardStats = {
   totalAsignaciones: number;
 };
 
-type CategoriaResumen = {
+type ResumenCategoria = {
   categoria: string;
   cantidad: number;
   porcentaje: number;
 };
 
-type EstadoResumen = {
+type ResumenEstado = {
   estado: string;
   cantidad: number;
 };
@@ -39,7 +39,7 @@ type ResponsableActivo = {
   nombre: string;
 } | null;
 
-type ActivoResumen = {
+type ResumenActivo = {
   id: number;
   nombre: string;
   categoria: string;
@@ -52,7 +52,7 @@ type ActivoResumen = {
   empleadoResponsable: ResponsableActivo;
 };
 
-type MantenimientoResumen = {
+type ResumenMantenimiento = {
   id: number;
   activoId: number;
   activo_nombre: string;
@@ -74,28 +74,28 @@ type MantenimientoResumen = {
   } | null;
 };
 
-type ActivityItem = {
+type ItemActividad = {
   type: "assignment" | "maintenance";
   title: string;
   detail: string;
   date: string;
 };
 
-type DashboardResponse = {
-  estadisticas: DashboardStats;
-  activosPorCategoria: CategoriaResumen[];
-  activosPorEstado: EstadoResumen[];
-  mantenimientosProximos: MantenimientoResumen[];
-  activosRecientes: ActivoResumen[];
-  recentActivity: ActivityItem[];
+type RespuestaPanelDashboard = {
+  estadisticas: ResumenEstadisticas;
+  activosPorCategoria: ResumenCategoria[];
+  activosPorEstado: ResumenEstado[];
+  mantenimientosProximos: ResumenMantenimiento[];
+  activosRecientes: ResumenActivo[];
+  recentActivity: ItemActividad[];
   filtros: {
     inicio: string;
     fin: string;
   };
 };
 
-// Obteniendo las estadísticas principales del dashboard
-const emptyStats: DashboardStats = {
+// Estado base para evitar tarjetas vacías.
+const estadisticasVacias: ResumenEstadisticas = {
   totalActivos: 0,
   enUso: 0,
   mantenimiento: 0,
@@ -104,10 +104,11 @@ const emptyStats: DashboardStats = {
   totalAsignaciones: 0,
 };
 
-function formatDate(value: string) {
-  const date = new Date(value);
+// Formatea fechas para tablas y listados.
+function formatearFecha(valor: string) {
+  const fecha = new Date(valor);
 
-  if (Number.isNaN(date.getTime())) {
+  if (Number.isNaN(fecha.getTime())) {
     return "-";
   }
 
@@ -115,100 +116,101 @@ function formatDate(value: string) {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(date);
+  }).format(fecha);
 }
 
-// Función principal del componente del dashboard
-function formatRelativeTime(value: string) {
-  const date = new Date(value);
-  const diffMs = Date.now() - date.getTime();
+// Convierte una fecha en un texto relativo como "Hace 2h".
+function formatearTiempoRelativo(valor: string) {
+  const fecha = new Date(valor);
+  const diferenciaMs = Date.now() - fecha.getTime();
 
-  if (Number.isNaN(diffMs) || diffMs < 0) {
+  if (Number.isNaN(diferenciaMs) || diferenciaMs < 0) {
     return "Recientemente";
   }
 
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) {
+  const minutos = Math.floor(diferenciaMs / 60000);
+  if (minutos < 1) {
     return "Ahora mismo";
   }
-  if (minutes < 60) {
-    return `Hace ${minutes}m`;
+  if (minutos < 60) {
+    return `Hace ${minutos}m`;
   }
 
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `Hace ${hours}h`;
+  const horas = Math.floor(minutos / 60);
+  if (horas < 24) {
+    return `Hace ${horas}h`;
   }
 
-  const days = Math.floor(hours / 24);
-  if (days === 1) {
+  const dias = Math.floor(horas / 24);
+  if (dias === 1) {
     return "Ayer";
   }
 
-  return `Hace ${days}d`;
+  return `Hace ${dias}d`;
 }
 
-// Función para normalizar estados y generar etiquetas legibles.
-function normalizeState(estado: string) {
+// Normaliza estados para usarlos como claves internas.
+function normalizarEstado(estado: string) {
   return estado.toLowerCase().replace(/\s+/g, "_");
 }
 
-function stateLabel(estado: string) {
-  const normalized = normalizeState(estado);
+// Traduce el estado técnico a una etiqueta legible.
+function etiquetaEstado(estado: string) {
+  const normalizado = normalizarEstado(estado);
 
-  if (normalized === "en_uso") {
+  if (normalizado === "en_uso") {
     return "En uso";
   }
-  if (normalized === "mantenimiento") {
+  if (normalizado === "mantenimiento") {
     return "En mantenimiento";
   }
-  if (normalized === "disponible") {
+  if (normalizado === "disponible") {
     return "Disponible";
   }
-  if (normalized === "dado_baja") {
+  if (normalizado === "dado_baja") {
     return "Dado de baja";
   }
 
   return estado;
 }
 
-// Funciones para asignar clases de estilo según el estado del activo o mantenimiento.
-function stateBadgeClasses(estado: string) {
-  const normalized = normalizeState(estado);
+// Clases visuales para el estado de un activo.
+function clasesEtiquetaEstado(estado: string) {
+  const normalizado = normalizarEstado(estado);
 
-  if (normalized === "en_uso") {
+  if (normalizado === "en_uso") {
     return "bg-blue-50 text-blue-700 border-blue-100";
   }
-  if (normalized === "mantenimiento") {
+  if (normalizado === "mantenimiento") {
     return "bg-amber-50 text-amber-700 border-amber-100";
   }
-  if (normalized === "disponible") {
+  if (normalizado === "disponible") {
     return "bg-emerald-50 text-emerald-700 border-emerald-100";
   }
-  if (normalized === "dado_baja") {
+  if (normalizado === "dado_baja") {
     return "bg-red-50 text-red-700 border-red-100";
   }
 
   return "bg-gray-50 text-gray-700 border-gray-100";
 }
 
-// Clases específicas para los estados de mantenimiento, que pueden ser más variados.
-function maintenanceBadgeClasses(estado: string) {
-  const normalized = normalizeState(estado);
+// Clases visuales para el estado de un mantenimiento.
+function clasesEtiquetaMantenimiento(estado: string) {
+  const normalizado = normalizarEstado(estado);
 
-  if (normalized === "programado") {
+  if (normalizado === "programado") {
     return "bg-blue-50 text-blue-700 border-blue-100";
   }
-  if (normalized === "pendiente") {
+  if (normalizado === "pendiente") {
     return "bg-amber-50 text-amber-700 border-amber-100";
   }
-  if (normalized === "en_proceso") {
+  if (normalizado === "en_proceso") {
     return "bg-violet-50 text-violet-700 border-violet-100";
   }
-  if (normalized === "pendiente_de_respuesta") {
+  if (normalizado === "pendiente_de_respuesta") {
     return "bg-orange-50 text-orange-700 border-orange-100";
   }
-  if (normalized === "vencido") {
+  if (normalizado === "vencido") {
     return "bg-red-50 text-red-700 border-red-100";
   }
 
@@ -216,39 +218,39 @@ function maintenanceBadgeClasses(estado: string) {
 }
 
 export default function Dashboard() {
-  const [datos, setDatos] = useState<DashboardResponse | null>(null);
+  const [datos, setDatos] = useState<RespuestaPanelDashboard | null>(null);
   const [cargando, setCargando] = useState(true);
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
 
   // Carga los datos reales del dashboard cada vez que cambian los filtros.
   useEffect(() => {
-    const controller = new AbortController();
+    const controlador = new AbortController();
 
     const cargarDatos = async () => {
       setCargando(true);
 
       try {
-        const params = new URLSearchParams();
+        const parametros = new URLSearchParams();
 
         if (fechaInicio) {
-          params.set("inicio", fechaInicio);
+          parametros.set("inicio", fechaInicio);
         }
 
         if (fechaFin) {
-          params.set("fin", fechaFin);
+          parametros.set("fin", fechaFin);
         }
 
-        const response = await fetch(
-          `/api/dashboard/datos${params.toString() ? `?${params.toString()}` : ""}`,
-          { signal: controller.signal },
+        const respuesta = await fetch(
+          `/api/dashboard/datos${parametros.toString() ? `?${parametros.toString()}` : ""}`,
+          { signal: controlador.signal },
         );
 
-        if (!response.ok) {
+        if (!respuesta.ok) {
           throw new Error("No se pudieron cargar los datos del dashboard");
         }
 
-        const payload = (await response.json()) as DashboardResponse;
+        const payload = (await respuesta.json()) as RespuestaPanelDashboard;
         setDatos(payload);
       } catch (error) {
         if (!(error instanceof DOMException && error.name === "AbortError")) {
@@ -256,7 +258,7 @@ export default function Dashboard() {
           setDatos(null);
         }
       } finally {
-        if (!controller.signal.aborted) {
+        if (!controlador.signal.aborted) {
           setCargando(false);
         }
       }
@@ -264,25 +266,35 @@ export default function Dashboard() {
 
     cargarDatos();
 
-    return () => controller.abort();
+    return () => controlador.abort();
   }, [fechaInicio, fechaFin]);
 
-  const estadisticas = datos?.estadisticas ?? emptyStats;
+  const estadisticas = datos?.estadisticas ?? estadisticasVacias;
   const activosPorCategoria = datos?.activosPorCategoria ?? [];
   const activosPorEstado = datos?.activosPorEstado ?? [];
   const mantenimientosProximos = datos?.mantenimientosProximos ?? [];
   const activosRecientes = datos?.activosRecientes ?? [];
-  const recentActivity = datos?.recentActivity ?? [];
+  const actividadReciente = datos?.recentActivity ?? [];
 
-  const maxCategoria = Math.max(
-    ...activosPorCategoria.map((item) => item.cantidad),
-    1,
-  );
-  const maxEstado = Math.max(
+  const maximoEstado = Math.max(
     ...activosPorEstado.map((item) => item.cantidad),
     1,
   );
-  const actualizando = cargando && Boolean(datos);
+  const totalActivos = estadisticas.totalActivos;
+  const totalPastel = Math.max(
+    activosPorCategoria.reduce((suma, item) => suma + item.cantidad, 0),
+    1,
+  );
+  const coloresPastel = [
+    "#2563eb",
+    "#14b8a6",
+    "#f59e0b",
+    "#8b5cf6",
+    "#ef4444",
+    "#64748b",
+  ];
+  const coloresEstados = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6"];
+  const actualizandoDatos = cargando && Boolean(datos);
 
   return (
     <div className="space-y-6">
@@ -347,7 +359,7 @@ export default function Dashboard() {
       </div>
 
       {/* Estado visual mientras se refrescan los datos */}
-      {actualizando ? (
+      {actualizandoDatos ? (
         <div className="text-xs font-medium text-blue-600">
           Actualizando datos...
         </div>
@@ -411,252 +423,33 @@ export default function Dashboard() {
       </section>
 
       {/* Gráficas resumidas por categoría y estado */}
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Activos por categoría
-              </h3>
-              <p className="text-sm text-gray-500">
-                Distribución tomada desde Prisma.
-              </p>
-            </div>
-            <BarChart3 size={18} className="text-blue-600" />
-          </div>
-
-          {activosPorCategoria.length === 0 ? (
-            <div className="flex h-56 items-center justify-center rounded-xl bg-gray-50 text-sm text-gray-400">
-              No hay datos de categorías para mostrar.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {activosPorCategoria.map((item) => (
-                <div key={item.categoria}>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-700">
-                      {item.categoria}
-                    </span>
-                    <span className="text-gray-500">
-                      {item.cantidad} · {item.porcentaje}%
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-gray-100">
-                    <div
-                      className="h-2 rounded-full bg-blue-600"
-                      style={{
-                        width: `${Math.max((item.cantidad / maxCategoria) * 100, item.cantidad > 0 ? 8 : 0)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Activos por estado
-              </h3>
-              <p className="text-sm text-gray-500">
-                Conteo de estados actuales del inventario.
-              </p>
-            </div>
-            <TrendingUp size={18} className="text-emerald-600" />
-          </div>
-
-          {activosPorEstado.length === 0 ? (
-            <div className="flex h-56 items-center justify-center rounded-xl bg-gray-50 text-sm text-gray-400">
-              No hay estados disponibles.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {activosPorEstado.map((item) => (
-                <div key={item.estado}>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-700">
-                      {item.estado}
-                    </span>
-                    <span className="text-gray-500">{item.cantidad}</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-gray-100">
-                    <div
-                      className="h-2 rounded-full bg-emerald-600"
-                      style={{
-                        width: `${Math.max((item.cantidad / maxEstado) * 100, item.cantidad > 0 ? 8 : 0)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <GraficasDelPanel
+        resumenCategorias={activosPorCategoria}
+        resumenEstados={activosPorEstado}
+        totalActivos={totalActivos}
+        maximoEstado={maximoEstado}
+        totalPastel={totalPastel}
+        coloresPastel={coloresPastel}
+        coloresEstados={coloresEstados}
+      />
 
       {/* Tablas principales del dashboard */}
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md xl:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Próximos mantenimientos
-              </h3>
-              <p className="text-sm text-gray-500">
-                Registros ordenados por fecha programada.
-              </p>
-            </div>
-            <Clock3 size={18} className="text-amber-600" />
-          </div>
+        <MantenimientosProximosPanel
+          mantenimientosProximos={mantenimientosProximos}
+          cargandoDatos={cargando && !datos}
+          formatearFecha={formatearFecha}
+          clasesEtiquetaMantenimiento={clasesEtiquetaMantenimiento}
+          etiquetaEstado={etiquetaEstado}
+        />
 
-          <div className="overflow-hidden rounded-xl border border-gray-100">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50/80">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Equipo
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Tipo
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Fecha
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Responsable
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Estado
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {cargando && !datos ? (
-                  <tr>
-                    <td className="px-4 py-6 text-sm text-gray-400" colSpan={5}>
-                      Cargando mantenimientos...
-                    </td>
-                  </tr>
-                ) : mantenimientosProximos.length === 0 ? (
-                  <tr>
-                    <td className="px-4 py-6 text-sm text-gray-400" colSpan={5}>
-                      No hay mantenimientos para mostrar.
-                    </td>
-                  </tr>
-                ) : (
-                  mantenimientosProximos.map((mantenimiento) => (
-                    <tr key={mantenimiento.id} className="hover:bg-gray-50/70">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-gray-900">
-                          {mantenimiento.activo?.nombre ||
-                            mantenimiento.activo_nombre}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {mantenimiento.activo?.marca || ""}{" "}
-                          {mantenimiento.activo?.modelo
-                            ? `· ${mantenimiento.activo.modelo}`
-                            : ""}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {mantenimiento.tipo}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {formatDate(mantenimiento.fecha_programada)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {mantenimiento.responsable}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${maintenanceBadgeClasses(mantenimiento.estado)}`}
-                        >
-                          {stateLabel(mantenimiento.estado)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Activos más recientes
-              </h3>
-              <p className="text-sm text-gray-500">
-                Altas más recientes registradas en el sistema.
-              </p>
-            </div>
-            <CalendarDays size={18} className="text-blue-600" />
-          </div>
-
-          <div className="overflow-hidden rounded-xl border border-gray-100">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50/80">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Activo
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Estado
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Compra
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {cargando && !datos ? (
-                  <tr>
-                    <td className="px-4 py-6 text-sm text-gray-400" colSpan={3}>
-                      Cargando activos...
-                    </td>
-                  </tr>
-                ) : activosRecientes.length === 0 ? (
-                  <tr>
-                    <td className="px-4 py-6 text-sm text-gray-400" colSpan={3}>
-                      No hay activos recientes para mostrar.
-                    </td>
-                  </tr>
-                ) : (
-                  activosRecientes.map((activo) => (
-                    <tr key={activo.id} className="hover:bg-gray-50/70">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-gray-900">
-                          {activo.nombre}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {activo.categoria}
-                          {activo.empleadoResponsable
-                            ? ` · ${activo.empleadoResponsable.nombre}`
-                            : ""}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${stateBadgeClasses(activo.estado)}`}
-                        >
-                          {stateLabel(activo.estado)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {formatDate(activo.fecha_compra)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ActivosRecientesPanel
+          activosRecientes={activosRecientes}
+          cargandoDatos={cargando && !datos}
+          formatearFecha={formatearFecha}
+          clasesEtiquetaEstado={clasesEtiquetaEstado}
+          etiquetaEstado={etiquetaEstado}
+        />
       </section>
 
       {/* Actividad reciente combinada */}
@@ -678,22 +471,22 @@ export default function Dashboard() {
             <div className="px-5 py-8 text-sm text-gray-400">
               Cargando actividad...
             </div>
-          ) : recentActivity.length === 0 ? (
+          ) : actividadReciente.length === 0 ? (
             <div className="px-5 py-8 text-sm text-gray-400">
               No hay actividad reciente.
             </div>
           ) : (
-            recentActivity.map((activity, index) => (
+            actividadReciente.map((actividad, index) => (
               <div
-                key={`${activity.type}-${index}`}
-                className="px-5 py-4 hover:bg-gray-50/60 transition-colors"
+                key={`${actividad.type}-${index}`}
+                className="px-5 py-4 transition-colors hover:bg-gray-50/60"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 items-start gap-3">
                     <div
-                      className={`mt-0.5 rounded-lg p-2 ${activity.type === "maintenance" ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
+                      className={`mt-0.5 rounded-lg p-2 ${actividad.type === "maintenance" ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
                     >
-                      {activity.type === "maintenance" ? (
+                      {actividad.type === "maintenance" ? (
                         <Wrench size={15} />
                       ) : (
                         <CheckCircle2 size={15} />
@@ -701,15 +494,15 @@ export default function Dashboard() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-900">
-                        {activity.title}
+                        {actividad.title}
                       </p>
                       <p className="mt-1 text-sm text-gray-500">
-                        {activity.detail}
+                        {actividad.detail}
                       </p>
                     </div>
                   </div>
                   <span className="whitespace-nowrap text-xs text-gray-400">
-                    {formatRelativeTime(activity.date)}
+                    {formatearTiempoRelativo(actividad.date)}
                   </span>
                 </div>
               </div>
