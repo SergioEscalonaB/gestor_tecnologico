@@ -89,43 +89,37 @@ export default function Home() {
       title: "Total Activos",
       value: cargando ? "..." : String(estadisticas?.totalActivos ?? 0),
       desc: "Equipos registrados",
-      icon: <Package size={18} />,
-      color: "bg-blue-50 text-blue-600",
+      icon: <Package size={18} />
     },
     {
       title: "En Uso",
       value: cargando ? "..." : String(estadisticas?.enUso ?? 0),
       desc: "Asignados actualmente",
-      icon: <Users size={18} />,
-      color: "bg-emerald-50 text-emerald-600",
+      icon: <Users size={18} />
     },
     {
       title: "Mantenimiento",
       value: cargando ? "..." : String(estadisticas?.mantenimiento ?? 0),
       desc: "Pendientes de revisión",
-      icon: <Wrench size={18} />,
-      color: "bg-amber-50 text-amber-600",
+      icon: <Wrench size={18} />
     },
     {
       title: "Disponibles",
       value: cargando ? "..." : String(estadisticas?.disponibles ?? 0),
       desc: "Listos para asignar",
-      icon: <CheckCircle2 size={18} />,
-      color: "bg-violet-50 text-violet-600",
+      icon: <CheckCircle2 size={18} />
     },
     {
       title: "Usuarios",
       value: cargando ? "..." : String(estadisticas?.totalUsuarios ?? 0),
       desc: "Usuarios registrados",
-      icon: <Users size={18} />,
-      color: "bg-purple-50 text-purple-600",
+      icon: <Users size={18} />
     },
     {
       title: "Asignaciones",
       value: cargando ? "..." : String(estadisticas?.totalAsignaciones ?? 0),
       desc: "Asignados actualmente",
-      icon: <ClipboardCheck size={18} />,
-      color: "bg-teal-50 text-teal-600",
+      icon: <ClipboardCheck size={18} />
     },
   ];
 
@@ -188,7 +182,7 @@ export default function Home() {
                       {stat.value}
                     </h3>
                   </div>
-                  <div className={`p-2.5 rounded-xl ${stat.color}`}>
+                  <div className={`p-2.5 rounded-xl`}>
                     {stat.icon}
                   </div>
                 </div>
@@ -317,9 +311,11 @@ export default function Home() {
                 </Link>
               ))}
             </div>
+            
           </div>
         </div>
       </div>
+
     </div>
   );
 }
