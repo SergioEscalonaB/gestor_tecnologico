@@ -4,16 +4,31 @@
 import React, { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
+import { usePathname } from "next/navigation";
 
 // Interfaz para las propiedades del layout wrapper
 export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   // Estado para controlar si el sidebar está colapsado
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
 
   // Función para alternar el sidebar
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  // Si estamos en la página de login, no renderizamos la barra lateral, superior ni footer
+  const isLoginPage = pathname === "/login";
+
+  if (isLoginPage) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

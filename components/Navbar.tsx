@@ -2,20 +2,41 @@
 
 import React from "react";
 
-// Importamos los componentes de lucide-react
+// Importamos los componentes de lucide-react y useRouter
 import { 
   Bell, 
   Search, 
   User, 
-  Menu
+  Menu,
+  LogOut
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Interfaz para las propiedades de la barra de navegación
 interface NavbarProps {
   onToggleSidebar: () => void;
 }
 
+// Componente de la barra de navegación
 export const Navbar = ({ onToggleSidebar }: NavbarProps) => {
+  const router = useRouter();
+
+  // Función para cerrar sesión
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST"
+      });
+      
+      if (res.ok) {
+        router.push("/login");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error al intentar cerrar sesión:", error);
+    }
+  };
+
   return (
     <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-20 px-4 lg:px-8 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-4">
@@ -51,9 +72,6 @@ export const Navbar = ({ onToggleSidebar }: NavbarProps) => {
         </button>
         */}
 
-        {/* Separador vertical */}
-        <div className="h-8 w-px bg-gray-200 mx-1"></div>
-
         {/* Usuario */}
         <div className="flex items-center gap-3 pl-2 cursor-pointer hover:bg-gray-50 p-1.5 rounded-xl transition-colors">
           <div className="text-right hidden sm:block">
@@ -64,6 +82,19 @@ export const Navbar = ({ onToggleSidebar }: NavbarProps) => {
             <User size={20} />
           </div>
         </div>
+
+        {/* Separador vertical */}
+        <div className="h-8 w-px bg-gray-200 mx-1"></div>
+
+        {/* Botón de Cerrar Sesión */}
+        <button
+          onClick={handleLogout}
+          className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+          title="Cerrar sesión"
+        >
+          <LogOut size={20} />
+          <span className="text-xs font-semibold hidden md:block">Salir</span>
+        </button>
       </div>
     </header>
   );

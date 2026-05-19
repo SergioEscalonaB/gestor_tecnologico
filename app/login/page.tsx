@@ -94,7 +94,9 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-4 text-center text-[11px] text-gray-400">
-          Credenciales de prueba: <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-gray-700">admin</code> / <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-gray-700">admin</code>
+          Credenciales de prueba: 
+          <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-gray-700">admin</code> / 
+          <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-gray-700">admin</code>
         </p>
       </div>
     </div>
