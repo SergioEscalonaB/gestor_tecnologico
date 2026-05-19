@@ -28,7 +28,7 @@ export const Navbar = ({ onToggleSidebar }: NavbarProps) => {
           <Menu size={20} />
         </button>
 
-        {/* Busqueda */}
+        {/* Busqueda 
         <div className="relative group hidden sm:block">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 group-focus-within:text-blue-500 transition-colors">
             <Search size={18} />
@@ -39,15 +39,17 @@ export const Navbar = ({ onToggleSidebar }: NavbarProps) => {
             placeholder="Buscar activos..."
           />
         </div>
+        */}
       </div>
 
       {/* Lado Derecho */}
       <div className="flex items-center gap-4">
-        {/* Boton de notificaciones */}
+        {/* Boton de notificaciones 
         <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative transition-colors">
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
+        */}
 
         {/* Separador vertical */}
         <div className="h-8 w-px bg-gray-200 mx-1"></div>
