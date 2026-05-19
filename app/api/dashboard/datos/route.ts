@@ -266,13 +266,13 @@ export async function GET(req: Request) {
     // Combina asignaciones y mantenimientos en una sola secuencia de actividad.
     const actividadReciente = [
       ...asignacionesRecientes.map((asignacion) => ({
-        type: "assignment",
+        tipo: "asignacion",
         title: asignacion.fecha_fin ? "Equipo devuelto" : "Equipo asignado",
         detail: `${asignacion.activo?.nombre || "Activo"} asignado a ${asignacion.empleado?.nombre || "Empleado"}`,
         date: aIso(asignacion.fecha_inicio),
       })),
       ...mantenimientosRecientes.map((mantenimiento) => ({
-        type: "maintenance",
+        tipo: "mantenimiento",
         title: mantenimiento.fecha_finalizacion
           ? "Mantenimiento completado"
           : "Mantenimiento programado",
@@ -301,7 +301,7 @@ export async function GET(req: Request) {
       activosPorEstado,
       mantenimientosProximos: mantenimientosProximosNormalizados,
       activosRecientes,
-      recentActivity: actividadReciente,
+      actividadReciente,
       filtros: {
         inicio: inicio || "",
         fin: fin || "",

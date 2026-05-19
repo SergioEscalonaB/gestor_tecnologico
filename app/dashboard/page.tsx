@@ -9,7 +9,7 @@ import {
   Users,
   Wrench,
 } from "lucide-react";
-import { GraficasDelPanel } from "../../components/dashboard/DashboardCharts";
+import { GraficasDelPanel } from "../../components/dashboard/GraficasDashboard";
 import { MantenimientosProximosPanel } from "../../components/dashboard/ProximosMantenimientos";
 import { ActivosRecientesPanel } from "../../components/dashboard/ActivosRecientes";
 
@@ -75,7 +75,7 @@ type ResumenMantenimiento = {
 };
 
 type ItemActividad = {
-  type: "assignment" | "maintenance";
+  tipo: "asignacion" | "mantenimiento";
   title: string;
   detail: string;
   date: string;
@@ -87,7 +87,7 @@ type RespuestaPanelDashboard = {
   activosPorEstado: ResumenEstado[];
   mantenimientosProximos: ResumenMantenimiento[];
   activosRecientes: ResumenActivo[];
-  recentActivity: ItemActividad[];
+  actividadReciente: ItemActividad[];
   filtros: {
     inicio: string;
     fin: string;
@@ -274,7 +274,7 @@ export default function Dashboard() {
   const activosPorEstado = datos?.activosPorEstado ?? [];
   const mantenimientosProximos = datos?.mantenimientosProximos ?? [];
   const activosRecientes = datos?.activosRecientes ?? [];
-  const actividadReciente = datos?.recentActivity ?? [];
+  const actividadReciente = datos?.actividadReciente ?? [];
 
   const maximoEstado = Math.max(
     ...activosPorEstado.map((item) => item.cantidad),
@@ -478,15 +478,15 @@ export default function Dashboard() {
           ) : (
             actividadReciente.map((actividad, index) => (
               <div
-                key={`${actividad.type}-${index}`}
+                key={`${actividad.tipo}-${index}`}
                 className="px-5 py-4 transition-colors hover:bg-gray-50/60"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 items-start gap-3">
                     <div
-                      className={`mt-0.5 rounded-lg p-2 ${actividad.type === "maintenance" ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
+                      className={`mt-0.5 rounded-lg p-2 ${actividad.tipo === "mantenimiento" ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}
                     >
-                      {actividad.type === "maintenance" ? (
+                      {actividad.tipo === "mantenimiento" ? (
                         <Wrench size={15} />
                       ) : (
                         <CheckCircle2 size={15} />
