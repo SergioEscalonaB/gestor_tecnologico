@@ -15,7 +15,7 @@ export async function GET() {
       totalUsuarios,
       totalAsignaciones,
     ] = await Promise.all([
-      prisma.asset.count(),
+      prisma.asset.count({ where: { estado: { not: "dado_baja" } } }),
       prisma.asset.count({ where: { estado: "en_uso" } }),
       prisma.asset.count({ where: { estado: "mantenimiento" } }),
       prisma.asset.count({ where: { estado: "disponible" } }),

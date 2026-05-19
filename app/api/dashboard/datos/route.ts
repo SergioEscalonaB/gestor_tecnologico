@@ -77,6 +77,7 @@ export async function GET(req: Request) {
       mantenimientosRecientes,
     ] = await Promise.all([
       prisma.asset.findMany({
+        where: { estado: { not: "dado_baja" } },
         select: {
           id: true,
           nombre: true,
