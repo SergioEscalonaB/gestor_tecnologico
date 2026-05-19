@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Search, X, ChevronDown, MapPin, Hash, Tag } from "lucide-react";
+import { Search, X, ChevronDown, MapPin, Hash, Tag, Trash2, RotateCcw } from "lucide-react";
 import { Activo } from "@/tipos/activo";
 import { useActivoStore } from "@/store/activoStore";
 
@@ -107,6 +107,49 @@ export function EditarActivo({
     setGuardando(false);
   }
 
+  // Cambia el estado del activo sin tocar el resto de los datos del formulario.
+  async function cambiarEstadoActivo(nuevoEstado: "dado_baja" | "disponible") {
+    setGuardando(true);
+    setError("");
+
+    const res = await fetch(`/api/activos/${activo.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre,
+        categoria,
+        marca,
+        modelo,
+        numero_serie: numeroSerie,
+        estado: nuevoEstado,
+        ubicacion: ubicacion || null,
+        proveedor: proveedor || null,
+        fecha_compra: activo.fecha_compra,
+        valor_compra: activo.valor_compra,
+        empleadoResponsableId: nuevoEstado === "dado_baja" ? null : empleadoSeleccionado?.id ?? null,
+      }),
+    });
+
+    if (res.ok) {
+      const actualizado = await res.json();
+      refrescar();
+      onGuardado({
+        ...actualizado,
+        empleadoResponsable:
+          nuevoEstado === "dado_baja" || !empleadoSeleccionado
+            ? null
+            : {
+                id: empleadoSeleccionado.id,
+                nombre: empleadoSeleccionado.nombre,
+              },
+      });
+    } else {
+      setError("Error al cambiar el estado del activo");
+    }
+
+    setGuardando(false);
+  }
+
   return (
     <div className="space-y-3">
 
@@ -197,6 +240,39 @@ export function EditarActivo({
             />
           </div>
         </div>
+      </div>
+
+        <div className="grid grid-cols-1 gap-3">
+        {activo.estado !== "dado_baja" ? (
+          <button
+            type="button"
+            onClick={async () => {
+              if (!confirm(`¿Seguro que deseas eliminar el activo ${activo.nombre}?`)) return;
+              await cambiarEstadoActivo("dado_baja");
+            }}
+            disabled={guardando}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 py-2 text-sm font-bold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-60"
+          >
+            <Trash2 size={16} />
+            Eliminar activo
+          </button>
+        ) : null}
+
+        {activo.estado === "dado_baja" ? (
+          <button
+            type="button"
+            onClick={async () => {
+              if (!confirm(`¿Seguro que deseas restablecer el activo ${activo.nombre}?`)) return;
+              await cambiarEstadoActivo("disponible");
+            }}
+            disabled={guardando}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 py-2 text-sm font-bold text-green-700 transition-colors hover:bg-green-100 disabled:opacity-60"
+          >
+            <RotateCcw size={16} />
+            Restablecer activo
+          </button>
+        ) : null}
+      </div>
 
         {/* Ubicación */}
         <div className="col-span-2 space-y-1">
@@ -285,7 +361,7 @@ export function EditarActivo({
           )}
         </div>
 
-      </div>
+      
 
       {/* Botón guardar */}
       <button
