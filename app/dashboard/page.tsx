@@ -12,6 +12,25 @@ export default function Dashboard() {
         <p className="text-gray-500">
           Resumen general de activos tecnológicos
         </p>
+        {/* Filtro de fecha*/}
+        <div className="flex items-center gap-2 ml-auto">
+          <label htmlFor="fecha-inicio" className="text-sm font-medium text-gray-700">
+            Fecha inicio:
+          </label>
+          <input
+            type="date"
+            id="fecha-inicio"
+            className="border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <label htmlFor="fecha-fin" className="text-sm font-medium text-gray-700">
+            Fecha final:
+          </label>
+          <input
+            type="date"
+            id="fecha-fin"
+            className="border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       {/* Datos principales */}
@@ -117,6 +136,58 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      {/* Gráficas */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Gráfica de activos por categoría */}
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 hover:shadow-md transition-all">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Activos por categoría
+          </h3>
+          {/* Aquí va la gráfica */}
+          <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <span className="text-gray-400">Gráfica de pastel</span>
+          </div>
+        </div>
+
+        {/* Gráfica de activos por estado */}
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 hover:shadow-md transition-all">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Activos por estado
+          </h3>
+          {/* Aquí va la gráfica */}
+          <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <span className="text-gray-400">Gráfica de barras</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        {/* Tabla de próximos mantenimientos */}
+        <div className="col-span-2 bg-white border border-gray-100 rounded-2xl shadow-sm p-4 hover:shadow-md transition-all">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Próximos mantenimientos
+          </h3>
+          {/* Aquí va la tabla */}
+          <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <span className="text-gray-400">Tabla de mantenimientos</span>
+          </div>
+        </div>
+
+        {/* Tabla de activos más recientes */}
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 hover:shadow-md transition-all">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Activos más recientes
+          </h3>
+          {/* Aquí va la tabla */}
+          <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <span className="text-gray-400">Tabla de activos</span>
+          </div>
+        </div>
+      </div>
+
+
+      
     </div>
   );
 }
