@@ -70,6 +70,7 @@ export async function GET(req: Request) {
     // Trae en paralelo los datos base que alimentan el dashboard.
     const [
       activos,
+      totalBajas,
       totalUsuarios,
       totalAsignaciones,
       asignacionesRecientes,
@@ -97,6 +98,7 @@ export async function GET(req: Request) {
         },
         orderBy: { fecha_compra: "desc" },
       }),
+      prisma.asset.count({ where: { estado: "dado_baja" } }),
       prisma.employee.count({ where: { activo: true } }),
       prisma.assignment.count({ where: { fecha_fin: null } }),
       prisma.assignment.findMany({
@@ -210,7 +212,7 @@ export async function GET(req: Request) {
       { estado: "En uso", cantidad: enUso },
       { estado: "En mantenimiento", cantidad: mantenimiento },
       { estado: "Disponibles", cantidad: disponibles },
-      { estado: "Dados de baja", cantidad: conteoEstados.dado_baja || 0 },
+      { estado: "Dados de baja", cantidad: totalBajas },
     ];
 
     // Normaliza la lista de activos más recientes para la tabla.

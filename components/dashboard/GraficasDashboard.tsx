@@ -182,7 +182,7 @@ export function GraficasDelPanel({
                       {item.cantidad}
                     </div>
                   </div>
-                  <div className="text-center text-s font-medium text-gray-600">
+                  <div className="text-center text-xs font-medium text-gray-600">
                     {item.estado}
                   </div>
                 </div>
