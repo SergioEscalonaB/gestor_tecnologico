@@ -1,8 +1,4 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "@/lib/prisma";
 
 // Obtener todos los activos, con filtro opcional por categoria y estado
 export async function GET(req: Request) {

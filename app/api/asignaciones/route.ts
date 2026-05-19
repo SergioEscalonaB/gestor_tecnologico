@@ -1,9 +1,4 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-
-// Configuración de Prisma con PostgreSQL
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "@/lib/prisma";
 
 // Obtener todas las asignaciones (opcionalmente filtradas por activoId)
 export async function GET(req: Request) {
