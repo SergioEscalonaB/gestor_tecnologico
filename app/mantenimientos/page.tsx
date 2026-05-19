@@ -288,10 +288,10 @@ export default function Mantenimientos() {
                     className={`transition-colors group cursor-pointer ${selectedMantenimiento?.id === mantenimiento.id ? 'bg-blue-100/60' : 'hover:bg-blue-50/30'}`}
                   >
                     {/* -- */}
-                    <td className="px-6 py-4 text-sm text-gray-900">{mantenimiento.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{mantenimiento.activo_nombre}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{labelTipo(mantenimiento.tipo)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{mantenimiento.id}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{mantenimiento.activo_nombre}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{labelTipo(mantenimiento.tipo)}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
                       {new Date(mantenimiento.fecha_programada).toLocaleDateString('es-ES')}
                     </td>
                     
@@ -301,7 +301,7 @@ export default function Mantenimientos() {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 text-center">
                       <span className="text-xs text-gray-900">
                         {mantenimiento.fecha_finalizacion 
                           ? new Date(mantenimiento.fecha_finalizacion).toLocaleDateString('es-ES')
@@ -309,7 +309,7 @@ export default function Mantenimientos() {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-sm text-gray-900 text-center">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 text-center">
                       <div className="flex items-center justify-end gap-3">
                         <span>{mantenimiento.responsable ?? "- -"}</span>
                         {/* Botón ojo que aparece cuando la fila está seleccionada */}

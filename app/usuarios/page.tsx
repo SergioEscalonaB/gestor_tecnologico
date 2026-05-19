@@ -277,11 +277,11 @@ export default function Usuarios() {
                   className={`hover:bg-gray-50/50 transition-colors ${selectedEmpleado?.id === empleado.id ? "bg-blue-50" : ""}`}
                 >
                   {/* -- */}
-                    <td className="px-6 py-4 text-sm text-gray-700">{empleado.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{empleado.cedula}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 font-medium">{empleado.nombre}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{empleado.cargo}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{empleado.area}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{empleado.id}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{empleado.cedula}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 font-medium">{empleado.nombre}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{empleado.cargo}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{empleado.area}</td>
                     <td className="px-6 py-4 text-sm text-gray-900 text-center">
                       {empleado.activo ? (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold border border-green-200">

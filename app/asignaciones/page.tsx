@@ -173,23 +173,23 @@ export default function Asignaciones() {
             <tbody className="divide-y divide-gray-100">
               {cargando ? ( 
                 <tr>
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     Cargando...
                   </td>
                 </tr>
               ) : asignacionesPagina.length === 0 ? (
                 <tr>
-                  <td className="px-6 py-4 text-sm text-gray-900">No hay asignaciones</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">No hay asignaciones</td>
                 </tr>
               ) : asignacionesPagina.map((a) => (
                 <tr key={a.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.activoId}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.activo?.nombre || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.empleado?.nombre || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{a.empleado?.cedula || "-"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{formatearFecha(a.fecha_inicio)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{formatearFecha(a.fecha_fin)}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{a.id}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{a.activoId}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{a.activo?.nombre || "-"}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{a.empleado?.nombre || "-"}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{a.empleado?.cedula || "-"}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatearFecha(a.fecha_inicio)}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatearFecha(a.fecha_fin)}</td>
                 </tr>
               ))}
             </tbody>

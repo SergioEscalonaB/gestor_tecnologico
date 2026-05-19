@@ -266,7 +266,7 @@ export default function Home() {
       </section>
 
       {/* Seccion de Modulos principales */}
-      <div className="grid grid-cols-1 grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 grid-cols-1 gap-5">
 
         {/* Columna izquierda */}
         <div className="col-span-2 space-y-5">
