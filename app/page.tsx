@@ -89,37 +89,43 @@ export default function Home() {
       title: "Total Activos",
       value: cargando ? "..." : String(estadisticas?.totalActivos ?? 0),
       desc: "Equipos registrados",
-      icon: <Package size={18} />
+      icon: <Package size={18} />,
+      color: "bg-blue-50 text-blue-600",
     },
     {
       title: "En Uso",
       value: cargando ? "..." : String(estadisticas?.enUso ?? 0),
       desc: "Asignados actualmente",
-      icon: <Users size={18} />
+      icon: <Users size={18} />,
+      color: "bg-green-50 text-green-600",
     },
     {
       title: "Mantenimiento",
       value: cargando ? "..." : String(estadisticas?.mantenimiento ?? 0),
       desc: "Pendientes de revisión",
-      icon: <Wrench size={18} />
+      icon: <Wrench size={18} />,
+      color: "bg-amber-50 text-amber-600",
     },
     {
       title: "Disponibles",
       value: cargando ? "..." : String(estadisticas?.disponibles ?? 0),
       desc: "Listos para asignar",
-      icon: <CheckCircle2 size={18} />
+      icon: <CheckCircle2 size={18} />,
+      color: "bg-emerald-50 text-emerald-600",
     },
     {
       title: "Usuarios",
       value: cargando ? "..." : String(estadisticas?.totalUsuarios ?? 0),
       desc: "Usuarios registrados",
-      icon: <Users size={18} />
+      icon: <Users size={18} />,
+      color: "bg-indigo-50 text-indigo-600",
     },
     {
       title: "Asignaciones",
       value: cargando ? "..." : String(estadisticas?.totalAsignaciones ?? 0),
       desc: "Asignados actualmente",
-      icon: <ClipboardCheck size={18} />
+      icon: <ClipboardCheck size={18} />,
+      color: "bg-violet-50 text-violet-600",
     },
   ];
 
@@ -182,7 +188,7 @@ export default function Home() {
                       {stat.value}
                     </h3>
                   </div>
-                  <div className={`p-2.5 rounded-xl`}>
+                  <div className={`p-2.5 rounded-xl ${stat.color}`}>
                     {stat.icon}
                   </div>
                 </div>

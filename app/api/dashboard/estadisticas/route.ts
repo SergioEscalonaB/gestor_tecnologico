@@ -13,7 +13,7 @@ export async function GET() {
       mantenimiento,
       disponibles,
       totalUsuarios,
-      totalAsignaciones
+      totalAsignaciones,
     ] = await Promise.all([
       prisma.asset.count(),
       prisma.asset.count({ where: { estado: "en_uso" } }),
@@ -30,16 +30,16 @@ export async function GET() {
         orderBy: { fecha_inicio: "desc" },
         include: {
           activo: true,
-          empleado: true
-        }
+          empleado: true,
+        },
       }),
       prisma.maintenance.findMany({
         take: 5,
         orderBy: { fecha_programada: "desc" },
         include: {
-          activo: true
-        }
-      })
+          activo: true,
+        },
+      }),
     ]);
 
     // 3. Combinando todas las actividades recientes del dashboard
@@ -52,13 +52,17 @@ export async function GET() {
       })),
       ...recentMaintenances.map((maint) => ({
         type: "maintenance",
-        title: maint.fecha_finalizacion ? "Mantenimiento completado" : "Mantenimiento programado",
+        title: maint.fecha_finalizacion
+          ? "Mantenimiento completado"
+          : "Mantenimiento programado",
         detail: `${maint.activo_nombre || maint.activo?.nombre || "Activo"} • ${maint.tipo}`,
-        date: (maint.fecha_finalizacion || maint.fecha_programada).toISOString(),
-      }))
+        date: (
+          maint.fecha_finalizacion || maint.fecha_programada
+        ).toISOString(),
+      })),
     ]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 4); // Tomando solo las 4 actividades más recientes
+      .slice(0, 5); // Tomando solo las 4 actividades más recientes
 
     return Response.json({
       estadisticas: {
@@ -67,15 +71,15 @@ export async function GET() {
         mantenimiento,
         disponibles,
         totalUsuarios,
-        totalAsignaciones
+        totalAsignaciones,
       },
-      recentActivity: activities
+      recentActivity: activities,
     });
   } catch (error) {
     console.error("Error al obtener estadísticas del dashboard:", error);
     return Response.json(
       { error: "Error al obtener estadísticas del dashboard" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
